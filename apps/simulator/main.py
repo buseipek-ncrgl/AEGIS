@@ -1,6 +1,14 @@
 import requests
 import time
 import sys
+
+# Windows konsolunda UTF-8 Türkçe ve Emoji desteği sağla
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from vehicle_simulator import SimulatedVehicle
 
 # AEGIS API URL'si
@@ -16,17 +24,17 @@ def register_vehicle(name: str, vehicle_type: int) -> str:
         response = requests.post(url, json=payload, timeout=5)
         if response.status_code in [200, 201]:
             data = response.json()
-            print(f"✅ Araç Sistemde Kayıtlı: {name} (ID: {data['id']})")
+            print(f"[OK] Araç Kayıtlı: {name} (ID: {data['id']})")
             return data["id"]
         else:
-            print(f"⚠️ Araç kaydı başarısız ({response.status_code}): {response.text}")
+            print(f"[UYARI] Araç kaydı başarısız ({response.status_code}): {response.text}")
     except Exception as e:
-        print(f"❌ API Bağlantı Hatası: {e}")
+        print(f"[HATA] API Bağlantı Hatası: {e}")
     return ""
 
 def main():
     print("=" * 60)
-    print("🚀 AEGIS GERÇEK ZAMANLI TELEMETRİ SİMÜLATÖRÜ BAŞLATILIYOR")
+    print("AEGIS GERCEK ZAMANLI TELEMETRI SIMULATORU BASLATILIYOR")
     print("=" * 60)
 
     # 3 Farklı Sivil Araç Tanımlıyoruz (Ankara ve İzmir Koordinatları)
@@ -71,11 +79,10 @@ def main():
         time.sleep(0.5)
 
     if not registered_vehicles:
-        print("\n❌ Hiçbir araç API'ye kaydedilemedi. Lütfen C# ASP.NET Core API'sinin ayakta olduğundan emin olun!")
-        print("   (Komut: dotnet run --project services/aegis-api/src/Aegis.Api)")
+        print("\n[HATA] Hiçbir araç API'ye kaydedilemedi. Lütfen C# ASP.NET Core API'sinin ayakta olduğundan emin olun!")
         sys.exit(1)
 
-    print(f"\n2. {len(registered_vehicles)} araç için CANLI TELEMETRİ DÖNGÜSÜ BAŞLIYOR... (Durdurmak için Ctrl+C)\n")
+    print(f"\n2. {len(registered_vehicles)} araç için CANLI TELEMETRİ DÖNGÜSÜ BAŞLIYOR...\n")
 
     step_count = 0
     while True:
@@ -93,11 +100,11 @@ def main():
             try:
                 res = requests.post(f"{API_BASE_URL}/telemetry", json=telemetry_payload, timeout=3)
                 if res.status_code == 200:
-                    print(f"   📡 [{v.name}] -> Enlem: {v.lat:.4f}, Boylam: {v.lng:.4f} | Batarya: %{v.battery:.1f} | İrtifa: {v.altitude:.1f}m | Hız: {v.speed:.1f} km/h (HTTP 200 OK)")
+                    print(f"   [CANLI] [{v.name}] -> Enlem: {v.lat:.4f}, Boylam: {v.lng:.4f} | Batarya: %{v.battery:.1f} | İrtifa: {v.altitude:.1f}m | Hız: {v.speed:.1f} km/h (200 OK)")
                 else:
-                    print(f"   ⚠️ [{v.name}] -> Telemetri gönderilemedi ({res.status_code})")
+                    print(f"   [UYARI] [{v.name}] -> Telemetri gönderilemedi ({res.status_code})")
             except Exception as e:
-                print(f"   ❌ [{v.name}] -> Gönderim hatası: {e}")
+                print(f"   [HATA] [{v.name}] -> Gönderim hatası: {e}")
 
         time.sleep(2.0)
 

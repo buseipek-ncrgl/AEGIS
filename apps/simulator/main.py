@@ -1,0 +1,105 @@
+import requests
+import time
+import sys
+from vehicle_simulator import SimulatedVehicle
+
+# AEGIS API URL'si
+API_BASE_URL = "http://localhost:5000/api"
+
+def register_vehicle(name: str, vehicle_type: int) -> str:
+    """
+    API'ye araç kaydeder veya kayıtlı aracın ID'sini döner.
+    """
+    url = f"{API_BASE_URL}/vehicles"
+    payload = {"name": name, "type": vehicle_type}
+    try:
+        response = requests.post(url, json=payload, timeout=5)
+        if response.status_code in [200, 201]:
+            data = response.json()
+            print(f"✅ Araç Sistemde Kayıtlı: {name} (ID: {data['id']})")
+            return data["id"]
+        else:
+            print(f"⚠️ Araç kaydı başarısız ({response.status_code}): {response.text}")
+    except Exception as e:
+        print(f"❌ API Bağlantı Hatası: {e}")
+    return ""
+
+def main():
+    print("=" * 60)
+    print("🚀 AEGIS GERÇEK ZAMANLI TELEMETRİ SİMÜLATÖRÜ BAŞLATILIYOR")
+    print("=" * 60)
+
+    # 3 Farklı Sivil Araç Tanımlıyoruz (Ankara ve İzmir Koordinatları)
+    vehicles = [
+        SimulatedVehicle(
+            vehicle_id="",
+            name="ANKARA-İHA-01",
+            vehicle_type=1, # Drone
+            start_lat=39.9334,
+            start_lng=32.8597,
+            base_altitude=850.0,
+            speed_kmh=110.0
+        ),
+        SimulatedVehicle(
+            vehicle_id="",
+            name="AFAD-AMBULANS-06",
+            vehicle_type=2, # Ambulance
+            start_lat=39.9208,
+            start_lng=32.8541,
+            base_altitude=890.0,
+            speed_kmh=65.0
+        ),
+        SimulatedVehicle(
+            vehicle_id="",
+            name="İZMİR-HELS-35",
+            vehicle_type=5, # Helicopter
+            start_lat=38.4237,
+            start_lng=27.1428,
+            base_altitude=450.0,
+            speed_kmh=140.0
+        )
+    ]
+
+    print("\n1. Araçlar API'ye kaydettiriliyor...")
+    registered_vehicles = []
+
+    for v in vehicles:
+        vid = register_vehicle(v.name, v.type)
+        if vid:
+            v.vehicle_id = vid
+            registered_vehicles.append(v)
+        time.sleep(0.5)
+
+    if not registered_vehicles:
+        print("\n❌ Hiçbir araç API'ye kaydedilemedi. Lütfen C# ASP.NET Core API'sinin ayakta olduğundan emin olun!")
+        print("   (Komut: dotnet run --project services/aegis-api/src/Aegis.Api)")
+        sys.exit(1)
+
+    print(f"\n2. {len(registered_vehicles)} araç için CANLI TELEMETRİ DÖNGÜSÜ BAŞLIYOR... (Durdurmak için Ctrl+C)\n")
+
+    step_count = 0
+    while True:
+        step_count += 1
+        print(f"--- [ADIM #{step_count}] - {time.strftime('%H:%M:%S')} ---")
+
+        for v in registered_vehicles:
+            # 1. Simülasyonda 2 saniyelik adımı ilerlet (konum, batarya, irtifa değişir)
+            v.step(delta_seconds=2.0)
+
+            # 2. REST API için JSON paketini hazırla
+            telemetry_payload = v.to_telemetry_payload()
+
+            # 3. HTTP POST isteği ile telemetriyi C# API'ye gönder
+            try:
+                res = requests.post(f"{API_BASE_URL}/telemetry", json=telemetry_payload, timeout=3)
+                if res.status_code == 200:
+                    print(f"   📡 [{v.name}] -> Enlem: {v.lat:.4f}, Boylam: {v.lng:.4f} | Batarya: %{v.battery:.1f} | İrtifa: {v.altitude:.1f}m | Hız: {v.speed:.1f} km/h (HTTP 200 OK)")
+                else:
+                    print(f"   ⚠️ [{v.name}] -> Telemetri gönderilemedi ({res.status_code})")
+            except Exception as e:
+                print(f"   ❌ [{v.name}] -> Gönderim hatası: {e}")
+
+        time.sleep(2.0)
+
+if __name__ == "__main__":
+    main()

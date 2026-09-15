@@ -1,4 +1,6 @@
 using Aegis.Application.Abstractions.Repositories;
+using Aegis.Application.Abstractions.Services;
+using Aegis.Infrastructure.Messaging;
 using Aegis.Infrastructure.Persistence;
 using Aegis.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,9 @@ public static class DependencyInjection
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<ITelemetryRepository, TelemetryRepository>();
         services.AddScoped<IAlertRepository, AlertRepository>();
+
+        // Kafka Event Streaming Producer Kaydı (Singleton Lifetime)
+        services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 
         return services;
     }

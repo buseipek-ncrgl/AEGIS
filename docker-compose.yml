@@ -21,5 +21,29 @@ services:
       - "6379:6379"
     restart: always
 
+  aegis-zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: aegis-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    restart: always
+
+  aegis-kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: aegis-kafka
+    depends_on:
+      - aegis-zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: aegis-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    restart: always
+
 volumes:
   postgres_data:

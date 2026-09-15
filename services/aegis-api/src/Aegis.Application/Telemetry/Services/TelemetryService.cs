@@ -2,6 +2,7 @@ using Aegis.Application.Abstractions.Repositories;
 using Aegis.Application.Abstractions.Services;
 using Aegis.Application.Alerts.DTOs;
 using Aegis.Application.Alerts.Services;
+using Aegis.Application.Events;
 using Aegis.Application.Telemetry.DTOs;
 using Aegis.Domain.Entities;
 using Aegis.Domain.ValueObjects;
@@ -13,7 +14,8 @@ public class TelemetryService(
     IVehicleRepository vehicleRepository,
     IAlertEngine? alertEngine = null,
     IAlertRepository? alertRepository = null,
-    ITelemetryBroadcastService? broadcastService = null) : ITelemetryService
+    ITelemetryBroadcastService? broadcastService = null,
+    IKafkaProducerService? kafkaProducer = null) : ITelemetryService
 {
     public async Task<TelemetryDto> RecordTelemetryAsync(CreateTelemetryRequest request, CancellationToken cancellationToken = default)
     {
@@ -47,6 +49,23 @@ public class TelemetryService(
         if (broadcastService is not null)
         {
             await broadcastService.BroadcastTelemetryAsync(dto, cancellationToken);
+        }
+
+        // Kafka Event Streaming: Olayı Kafka Kuyruğuna fırlat
+        if (kafkaProducer is not null)
+        {
+            var @event = new TelemetryCreatedEvent(
+                telemetry.Id,
+                telemetry.VehicleId,
+                telemetry.Location.Latitude,
+                telemetry.Location.Longitude,
+                telemetry.Altitude,
+                telemetry.Speed,
+                telemetry.BatteryPercentage,
+                telemetry.Temperature,
+                telemetry.Timestamp
+            );
+            await kafkaProducer.PublishAsync("aegis.telemetry.events", telemetry.VehicleId.ToString(), @event, cancellationToken);
         }
 
         // Taktik ALARM Motoru Değerlendirmesi

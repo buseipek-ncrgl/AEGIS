@@ -1,0 +1,46 @@
+### 1. API Ana Sayfa & Durum Kontrolü
+GET http://localhost:5000/
+
+### 2. Tüm Aktif Araçları Getir (REST GET)
+GET http://localhost:5000/api/vehicles
+
+### 3. Yeni Bir Araç Kaydet (REST POST)
+POST http://localhost:5000/api/vehicles
+Content-Type: application/json
+
+{
+  "name": "TEST-İHA-99",
+  "type": 1
+}
+
+### 4. Canlı Telemetri Gönder (REST POST - Batarya Kritik Alarm Tetikleme)
+# Not: vehicleId kısmına yukarıdaki istekten dönen ID'yi yazabilirsiniz.
+POST http://localhost:5000/api/telemetry
+Content-Type: application/json
+
+{
+  "vehicleId": "ad764307-5dd3-4b5f-80c7-6af42dbc79a4",
+  "latitude": 39.9334,
+  "longitude": 32.8597,
+  "altitude": 850.0,
+  "speed": 110.0,
+  "batteryPercentage": 12.5,
+  "temperature": 45.0
+}
+
+### 5. Yasaklı Bölge (Geofence İhlal) Telemetrisi Gönder
+POST http://localhost:5000/api/telemetry
+Content-Type: application/json
+
+{
+  "vehicleId": "ad764307-5dd3-4b5f-80c7-6af42dbc79a4",
+  "latitude": 40.1500,
+  "longitude": 32.8500,
+  "altitude": 900.0,
+  "speed": 120.0,
+  "batteryPercentage": 85.0,
+  "temperature": 42.0
+}
+
+### 6. Tüm Aktif Alarmları Listele (REST GET)
+GET http://localhost:5000/api/alerts/active

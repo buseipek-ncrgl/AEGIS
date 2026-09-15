@@ -1,4 +1,5 @@
 using Aegis.Application.Abstractions.Repositories;
+using Aegis.Application.Abstractions.Services;
 using Aegis.Application.Telemetry.DTOs;
 using Aegis.Domain.Entities;
 using Aegis.Domain.ValueObjects;
@@ -7,7 +8,8 @@ namespace Aegis.Application.Telemetry.Services;
 
 public class TelemetryService(
     ITelemetryRepository telemetryRepository,
-    IVehicleRepository vehicleRepository) : ITelemetryService
+    IVehicleRepository vehicleRepository,
+    ITelemetryBroadcastService? broadcastService = null) : ITelemetryService
 {
     public async Task<TelemetryDto> RecordTelemetryAsync(CreateTelemetryRequest request, CancellationToken cancellationToken = default)
     {
@@ -35,7 +37,15 @@ public class TelemetryService(
         // Telemetriyi kaydet
         await telemetryRepository.AddAsync(telemetry, cancellationToken);
 
-        return MapToDto(telemetry);
+        var dto = MapToDto(telemetry);
+
+        // SignalR Canlı Yayın: Bağlı tüm web arayüzlerine anında push et
+        if (broadcastService is not null)
+        {
+            await broadcastService.BroadcastTelemetryAsync(dto, cancellationToken);
+        }
+
+        return dto;
     }
 
     public async Task<IReadOnlyList<TelemetryDto>> GetTelemetryHistoryAsync(Guid vehicleId, int limit = 100, CancellationToken cancellationToken = default)

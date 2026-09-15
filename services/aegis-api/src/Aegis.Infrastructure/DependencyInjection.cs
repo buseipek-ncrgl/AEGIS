@@ -1,5 +1,6 @@
 using Aegis.Application.Abstractions.Repositories;
 using Aegis.Application.Abstractions.Services;
+using Aegis.Infrastructure.Caching;
 using Aegis.Infrastructure.Messaging;
 using Aegis.Infrastructure.Persistence;
 using Aegis.Infrastructure.Repositories;
@@ -35,6 +36,15 @@ public static class DependencyInjection
 
         // Kafka Event Streaming Producer Kaydı (Singleton Lifetime)
         services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
+
+        // Redis Caching Kayıtları
+        var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+            options.InstanceName = "Aegis:";
+        });
+        services.AddSingleton<ICacheService, RedisCacheService>();
 
         return services;
     }

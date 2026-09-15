@@ -15,7 +15,8 @@ public class TelemetryService(
     IAlertEngine? alertEngine = null,
     IAlertRepository? alertRepository = null,
     ITelemetryBroadcastService? broadcastService = null,
-    IKafkaProducerService? kafkaProducer = null) : ITelemetryService
+    IKafkaProducerService? kafkaProducer = null,
+    ICacheService? cacheService = null) : ITelemetryService
 {
     public async Task<TelemetryDto> RecordTelemetryAsync(CreateTelemetryRequest request, CancellationToken cancellationToken = default)
     {
@@ -44,6 +45,13 @@ public class TelemetryService(
         await telemetryRepository.AddAsync(telemetry, cancellationToken);
 
         var dto = MapToDto(telemetry);
+
+        // Redis Caching (Cache-Aside / Read-Through Cache Write): En son konumu Redis'e yaz
+        if (cacheService is not null)
+        {
+            var cacheKey = $"vehicle:{request.VehicleId}:latest";
+            await cacheService.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(5), cancellationToken);
+        }
 
         // SignalR Canlı Yayın: Bağlı tüm web arayüzlerine anında push et
         if (broadcastService is not null)
@@ -104,8 +112,31 @@ public class TelemetryService(
 
     public async Task<TelemetryDto?> GetLatestTelemetryAsync(Guid vehicleId, CancellationToken cancellationToken = default)
     {
+        var cacheKey = $"vehicle:{vehicleId}:latest";
+
+        // 1. Önce Redis Ön Belleğe Bak (Cache Hit check)
+        if (cacheService is not null)
+        {
+            var cachedTelemetry = await cacheService.GetAsync<TelemetryDto>(cacheKey, cancellationToken);
+            if (cachedTelemetry is not null)
+            {
+                return cachedTelemetry; // Cache Hit! Veritabanına hiç dokunmadan hızlıca dön.
+            }
+        }
+
+        // 2. Cache Miss: Veritabanından Oku
         var telemetry = await telemetryRepository.GetLatestByVehicleIdAsync(vehicleId, cancellationToken);
-        return telemetry is null ? null : MapToDto(telemetry);
+        if (telemetry is null) return null;
+
+        var dto = MapToDto(telemetry);
+
+        // 3. Veritabanından okunan veriyi Redis'e kaydet (5 Dakika Yaşam Süresi / TTL)
+        if (cacheService is not null)
+        {
+            await cacheService.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(5), cancellationToken);
+        }
+
+        return dto;
     }
 
     private static TelemetryDto MapToDto(Domain.Entities.Telemetry telemetry)

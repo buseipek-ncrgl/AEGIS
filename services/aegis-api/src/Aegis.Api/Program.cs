@@ -38,8 +38,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+
+// Ana Sayfa (Root) Hoşgeldiniz & API Durum Endpoint'i
+app.MapGet("/", () => Results.Ok(new 
+{ 
+    system = "AEGIS Command & Control API", 
+    status = "Online", 
+    version = "v1.0",
+    endpoints = new[] { "/api/vehicles", "/api/telemetry", "/hubs/telemetry" }
+}));
 
 // REST Controller Endpoint Eşlemesi
 app.MapControllers();

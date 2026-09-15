@@ -8,6 +8,13 @@ public class VehicleService(IVehicleRepository vehicleRepository) : IVehicleServ
 {
     public async Task<VehicleDto> CreateVehicleAsync(CreateVehicleRequest request, CancellationToken cancellationToken = default)
     {
+        var existingVehicles = await vehicleRepository.GetAllAsync(cancellationToken);
+        var existing = existingVehicles.FirstOrDefault(v => string.Equals(v.Name, request.Name, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            return MapToDto(existing);
+        }
+
         var vehicle = new Vehicle(Guid.NewGuid(), request.Name, request.Type);
         
         await vehicleRepository.AddAsync(vehicle, cancellationToken);

@@ -29,6 +29,7 @@ public static class DependencyInjection
         // Repository Kayıtları (Scoped Lifetime)
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<ITelemetryRepository, TelemetryRepository>();
+        services.AddScoped<IAlertRepository, AlertRepository>();
 
         return services;
     }

@@ -101,6 +101,11 @@ def main():
                 res = requests.post(f"{API_BASE_URL}/telemetry", json=telemetry_payload, timeout=3)
                 if res.status_code == 200:
                     print(f"   [CANLI] [{v.name}] -> Enlem: {v.lat:.4f}, Boylam: {v.lng:.4f} | Batarya: %{v.battery:.1f} | İrtifa: {v.altitude:.1f}m | Hız: {v.speed:.1f} km/h (200 OK)")
+                elif res.status_code == 404:
+                    print(f"   [YENİDEN KAYIT] [{v.name}] -> Veritabanı sıfırlanmış, araç tekrar kaydediliyor...")
+                    new_id = register_vehicle(v.name, v.type)
+                    if new_id:
+                        v.vehicle_id = new_id
                 else:
                     print(f"   [UYARI] [{v.name}] -> Telemetri gönderilemedi ({res.status_code})")
             except Exception as e:

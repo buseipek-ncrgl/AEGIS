@@ -1,5 +1,7 @@
 using Aegis.Application.Abstractions.Repositories;
 using Aegis.Application.Abstractions.Services;
+using Aegis.Application.Alerts.DTOs;
+using Aegis.Application.Alerts.Services;
 using Aegis.Application.Telemetry.DTOs;
 using Aegis.Domain.Entities;
 using Aegis.Domain.ValueObjects;
@@ -9,6 +11,8 @@ namespace Aegis.Application.Telemetry.Services;
 public class TelemetryService(
     ITelemetryRepository telemetryRepository,
     IVehicleRepository vehicleRepository,
+    IAlertEngine? alertEngine = null,
+    IAlertRepository? alertRepository = null,
     ITelemetryBroadcastService? broadcastService = null) : ITelemetryService
 {
     public async Task<TelemetryDto> RecordTelemetryAsync(CreateTelemetryRequest request, CancellationToken cancellationToken = default)
@@ -43,6 +47,31 @@ public class TelemetryService(
         if (broadcastService is not null)
         {
             await broadcastService.BroadcastTelemetryAsync(dto, cancellationToken);
+        }
+
+        // Taktik ALARM Motoru Değerlendirmesi
+        if (alertEngine is not null && alertRepository is not null)
+        {
+            var alerts = alertEngine.EvaluateTelemetry(vehicle, telemetry);
+            foreach (var alert in alerts)
+            {
+                await alertRepository.AddAsync(alert, cancellationToken);
+
+                if (broadcastService is not null)
+                {
+                    var alertDto = new AlertDto(
+                        alert.Id,
+                        alert.VehicleId,
+                        vehicle.Name,
+                        alert.Severity,
+                        alert.Type,
+                        alert.Message,
+                        alert.CreatedAt,
+                        alert.IsAcknowledged
+                    );
+                    await broadcastService.BroadcastAlertAsync(alertDto, cancellationToken);
+                }
+            }
         }
 
         return dto;

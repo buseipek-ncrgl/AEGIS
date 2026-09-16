@@ -18,7 +18,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-16 sm:w-20 c4isr-glass-header border-r border-cyan-500/30 flex flex-col items-center py-6 gap-6 z-40 shrink-0 font-mono">
+    <aside className="w-16 sm:w-20 c4isr-glass-header border-r border-cyan-500/30 flex flex-col items-center py-6 gap-6 z-50 shrink-0 font-mono sticky top-0 h-screen">
       {/* Brand Icon */}
       <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/40 rounded-2xl text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.4)] animate-pulse">
         <Radio className="w-6 h-6 text-cyan-400" />

@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AlertDto, AlertSeverity } from "@/types/alert";
-import { AlertTriangle, ShieldAlert, CheckCircle2, Bot, Target } from "lucide-react";
+import { AlertTriangle, ShieldAlert, CheckCircle2, Bot, Target, ChevronDown, ChevronUp, BellRing } from "lucide-react";
 
 interface AlertBannerProps {
   alerts: AlertDto[];
@@ -10,9 +11,13 @@ interface AlertBannerProps {
 }
 
 export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomalyMessage }: AlertBannerProps) {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const activeAlerts = alerts.filter((a) => !a.isAcknowledged);
 
   if (activeAlerts.length === 0 && !latestAiAnomalyMessage) return null;
+
+  const visibleAlerts = isExpanded ? activeAlerts : activeAlerts.slice(0, 1);
+  const remainingCount = activeAlerts.length - 1;
 
   return (
     <div className="space-y-2 mb-4 animate-fadeIn font-mono">
@@ -38,8 +43,8 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
         </div>
       )}
 
-      {/* Taktik Sistem Alarmları */}
-      {activeAlerts.slice(0, 3).map((alert) => {
+      {/* Akıllı Taktik Sistem Alarmları Listesi */}
+      {visibleAlerts.map((alert) => {
         const isCritical = alert.severity === AlertSeverity.Critical;
 
         return (
@@ -84,20 +89,41 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
               </div>
             </div>
 
-            <button
-              onClick={() => onAcknowledgeAlert(alert.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
-                isCritical
-                  ? "bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]"
-                  : "bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]"
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>ONAYLA (ANLAŞILDI)</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onAcknowledgeAlert(alert.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
+                  isCritical
+                    ? "bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]"
+                    : "bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+                }`}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>ONAYLA (ANLAŞILDI)</span>
+              </button>
+            </div>
           </div>
         );
       })}
+
+      {/* Ekran Yığılmasını Önleyen Akıllı Genişletme Barı */}
+      {remainingCount > 0 && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full py-1.5 px-4 bg-slate-900/80 hover:bg-slate-800/90 border border-cyan-500/30 rounded-xl text-cyan-300 text-xs font-mono font-bold flex items-center justify-between transition cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+        >
+          <div className="flex items-center space-x-2">
+            <BellRing className="w-4 h-4 text-cyan-400 animate-pulse" />
+            <span>
+              {isExpanded
+                ? "Taktik Bildirim Listesini Daralt"
+                : `+ ${remainingCount} Adet Bekleyen Taktik Alarm Daha Var (Tümünü Göster)`}
+            </span>
+          </div>
+          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+      )}
     </div>
   );
 }
+

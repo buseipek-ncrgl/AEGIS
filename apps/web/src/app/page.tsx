@@ -248,7 +248,7 @@ export default function Home() {
           onOpenManualAlertModal={() => setIsManualAlertModalOpen(true)}
         />
 
-        {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}
+        {/* Ana Operasyon Ekranı (Tab Değişimli Dinamik C4ISR Görünümleri) */}
         <main className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-5 max-w-[1800px] w-full mx-auto overflow-y-auto">
           {/* Canlı Taktik Alarm Paneli & AI Anomali İkaz Kartı */}
           <AlertBanner
@@ -269,9 +269,38 @@ export default function Home() {
             />
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-            {/* Sol Kolon (2 Birim - Masaüstü): Radar Haritası & Telemetri Akışı */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+          {/* TAB 1: Genel Komuta Merkezi Görünümü (Dashboard) */}
+          {activeTab === "dashboard" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+                <LiveRadarMap
+                  trackedVehicles={trackedVehicles}
+                  selectedVehicleId={selectedVehicleId}
+                  onSelectVehicle={(id) => {
+                    setSelectedVehicleId(id);
+                    setPlaybackTelemetry(null);
+                  }}
+                  playbackTelemetry={playbackTelemetry}
+                />
+                <TelemetryFeed telemetryLogs={telemetryLogs} />
+              </div>
+
+              <div className="lg:col-span-1">
+                <VehicleList
+                  trackedVehicles={trackedVehicles}
+                  selectedVehicleId={selectedVehicleId}
+                  onSelectVehicle={(id) => {
+                    setSelectedVehicleId(id);
+                    setPlaybackTelemetry(null);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: Tam Ekran Harita Görünümü (Map) */}
+          {activeTab === "map" && (
+            <div className="w-full h-[780px]">
               <LiveRadarMap
                 trackedVehicles={trackedVehicles}
                 selectedVehicleId={selectedVehicleId}
@@ -281,12 +310,12 @@ export default function Home() {
                 }}
                 playbackTelemetry={playbackTelemetry}
               />
-
-              <TelemetryFeed telemetryLogs={telemetryLogs} />
             </div>
+          )}
 
-            {/* Sağ Kolon (1 Birim - Masaüstü / Mobil Altında): Aktif Araç Filosu */}
-            <div className="lg:col-span-1">
+          {/* TAB 3: Özel Filo Yönetim Görünümü (Fleet) */}
+          {activeTab === "fleet" && (
+            <div className="w-full">
               <VehicleList
                 trackedVehicles={trackedVehicles}
                 selectedVehicleId={selectedVehicleId}
@@ -296,7 +325,33 @@ export default function Home() {
                 }}
               />
             </div>
-          </div>
+          )}
+
+          {/* TAB 4: Yapay Zeka & Anomali Detay Görünümü (AI) */}
+          {activeTab === "ai" && (
+            <div className="space-y-5">
+              <div className="c4isr-glass-panel p-6 rounded-2xl border border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.2)] font-mono">
+                <h3 className="text-lg font-black text-purple-300 mb-2">🤖 HAVERSINE KINEMATIC AI ANOMALY ENGINE</h3>
+                <p className="text-xs text-slate-300">
+                  Gerçek zamanlı yeryüzü eğriliği kinetik modelleri (d = 2R · atan2(√a, √(1-a))) ile GPS Spoofing, Serbest Düşüş ve Termal Kaçış risk analizleri gerçekleştirilmektedir.
+                </p>
+              </div>
+              <TelemetryFeed telemetryLogs={telemetryLogs} />
+            </div>
+          )}
+
+          {/* TAB 5: Görev Raporları ve Audit Görünümü (Reports) */}
+          {activeTab === "reports" && (
+            <div className="space-y-5">
+              <div className="c4isr-glass-panel p-6 rounded-2xl border border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.2)] font-mono">
+                <h3 className="text-lg font-black text-emerald-300 mb-2">📄 AFTER-ACTION REPORT (AAR) AUDIT KONSOLU</h3>
+                <p className="text-xs text-slate-300">
+                  Uçuş sonrasında tüm telemetri kayıtları, konum koordinatları, hız dalgalanmaları ve AI anomali işaretleri CSV formatında indirilebilir.
+                </p>
+              </div>
+              <TelemetryFeed telemetryLogs={telemetryLogs} />
+            </div>
+          )}
         </main>
       </div>
 

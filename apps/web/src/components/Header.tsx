@@ -130,9 +130,9 @@ export default function Header({
           </div>
 
           {/* Sistem Saati */}
-          <div className="flex items-center space-x-1.5 bg-slate-900/90 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg text-cyan-300 font-mono text-[11px] sm:text-xs shadow-[0_0_10px_rgba(6,182,212,0.15)]">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{currentTime || "00:00:00"}</span>
+          <div className="flex items-center space-x-1.5 bg-slate-900/90 border border-cyan-500/40 px-2.5 py-1.5 rounded-lg text-cyan-300 font-mono text-[11px] sm:text-xs shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+            <span className="font-black tracking-wider">{currentTime || "00:00:00"}</span>
           </div>
         </div>
       </header>

@@ -78,20 +78,37 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
                       <div>HIZ: <span className="text-amber-400 font-bold">{t.speed} km/h</span></div>
                     </div>
 
-                    {/* Batarya Çubuğu */}
-                    <div className="flex items-center space-x-2">
-                      <Battery className={`w-4 h-4 ${t.batteryPercentage < 20 ? "text-rose-500 animate-pulse" : "text-emerald-400"}`} />
-                      <div className="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
-                        <div
-                          className={`h-full transition-all duration-500 ${
-                            t.batteryPercentage < 20 ? "bg-rose-500" : "bg-gradient-to-r from-teal-500 to-emerald-400"
-                          }`}
-                          style={{ width: `${t.batteryPercentage}%` }}
-                        ></div>
+                    {/* Batarya Çubuğu & Oynat Butonu */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center space-x-2 flex-1 mr-3">
+                        <Battery className={`w-3.5 h-3.5 ${t.batteryPercentage < 20 ? "text-rose-500 animate-pulse" : "text-emerald-400"}`} />
+                        <div className="flex-1 bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                          <div
+                            className={`h-full transition-all duration-500 ${
+                              t.batteryPercentage < 20 ? "bg-rose-500" : "bg-gradient-to-r from-teal-500 to-emerald-400"
+                            }`}
+                            style={{ width: `${t.batteryPercentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-slate-300">
+                          %{t.batteryPercentage}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono font-bold text-slate-300">
-                        %{t.batteryPercentage}
-                      </span>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectVehicle(state.vehicle.id);
+                        }}
+                        className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all flex items-center space-x-1 cursor-pointer ${
+                          isSelected
+                            ? "bg-cyan-500 text-slate-950 font-black shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+                            : "bg-slate-900 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20"
+                        }`}
+                      >
+                        <Navigation className="w-3 h-3" />
+                        <span>{isSelected ? "⏪ OYNATICI AKTİF" : "▶️ ROTA OYNAT"}</span>
+                      </button>
                     </div>
                   </div>
                 ) : (

@@ -32,14 +32,19 @@ export default function RouteReplayPlayer({
             setIsPlaying(false);
             return prev;
           }
-          const next = prev + 1;
-          if (onPlaybackPointChange) onPlaybackPointChange(sortedHistory[next]);
-          return next;
+          return prev + 1;
         });
       }, 1000 / speed);
     }
     return () => clearInterval(timer);
-  }, [isPlaying, sortedHistory, speed, onPlaybackPointChange]);
+  }, [isPlaying, sortedHistory.length, speed]);
+
+  // Safe useEffect to notify parent of current playback telemetry point outside of render phase
+  useEffect(() => {
+    if (onPlaybackPointChange && sortedHistory[currentIndex]) {
+      onPlaybackPointChange(sortedHistory[currentIndex]);
+    }
+  }, [currentIndex, sortedHistory, onPlaybackPointChange]);
 
   if (!selectedVehicleState || sortedHistory.length === 0) return null;
 
@@ -48,13 +53,11 @@ export default function RouteReplayPlayer({
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const idx = Number(e.target.value);
     setCurrentIndex(idx);
-    if (onPlaybackPointChange) onPlaybackPointChange(sortedHistory[idx]);
   };
 
   const handleReset = () => {
     setIsPlaying(false);
     setCurrentIndex(0);
-    if (onPlaybackPointChange) onPlaybackPointChange(sortedHistory[0]);
   };
 
   return (

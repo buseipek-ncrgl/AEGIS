@@ -93,6 +93,7 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 - **🔥 Thermal Runaway (Battery / Engine Fire Risk):** Flags rapid thermal spikes ($\Delta T / \Delta t > 2.5^\circ\text{C/s}$) before structural battery failure.
 
 ### 2. 🗺️ Real-Time GIS & Official ICAO/AIP No-Fly Zone Geofencing
+- **🇹🇷 Turkish Defense Industry Platforms:** Real-time stream processing for STM KARGU-2 (Tactical Loitering Attack UAV), STM TOGAN-2 (Autonomous Reconnaissance UAV), STM ALPAGU-1 (Loitering Munition), and TSK Rescue Helicopters.
 - **GIS Cartography:** Integrates Esri Dark Gray, Esri Satellite Imagery, and OpenStreetMap tiles without proprietary API keys.
 - **Official Airspace Polygons:** Renders Turkish Aeronautical Information Publication (AIP) restricted airspace polygons:
   - **🚫 LT-P1:** Ankara Protocol & Anıtkabir Prohibited Area
@@ -189,7 +190,7 @@ npm run dev
 # From project root directory
 python apps/simulator/main.py
 ```
-*The simulator will register simulated vehicles (ANKARA-İHA-01, AFAD-AMBULANS-06, İZMİR-HELS-35) and stream live GPS coordinates to the API.*
+*The simulator will register official Turkish defense tactical platforms (**STM-KARGU-2**, **STM-TOGAN-2**, **STM-ALPAGU-1**, **TSK-HELS-35**, **AFAD-AMBULANS-06**) and stream live STANAG 4586 compliant GPS coordinates to the API.*
 
 ---
 

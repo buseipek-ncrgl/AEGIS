@@ -21,7 +21,7 @@ def register_vehicle(name: str, vehicle_type: int) -> str:
     url = f"{API_BASE_URL}/vehicles"
     payload = {"name": name, "type": vehicle_type}
     try:
-        response = requests.post(url, json=payload, timeout=5)
+        response = requests.post(url, json=payload, timeout=10)
         if response.status_code in [200, 201]:
             data = response.json()
             print(f"[OK] Araç Kayıtlı: {name} (ID: {data['id']})")
@@ -98,7 +98,7 @@ def main():
 
             # 3. HTTP POST isteği ile telemetriyi C# API'ye gönder
             try:
-                res = requests.post(f"{API_BASE_URL}/telemetry", json=telemetry_payload, timeout=3)
+                res = requests.post(f"{API_BASE_URL}/telemetry", json=telemetry_payload, timeout=10)
                 if res.status_code == 200:
                     print(f"   [CANLI] [{v.name}] -> Enlem: {v.lat:.4f}, Boylam: {v.lng:.4f} | Batarya: %{v.battery:.1f} | İrtifa: {v.altitude:.1f}m | Hız: {v.speed:.1f} km/h (200 OK)")
                 elif res.status_code == 404:
@@ -111,7 +111,7 @@ def main():
             except Exception as e:
                 print(f"   [HATA] [{v.name}] -> Gönderim hatası: {e}")
 
-        time.sleep(2.0)
+        time.sleep(1.5)
 
 if __name__ == "__main__":
     main()

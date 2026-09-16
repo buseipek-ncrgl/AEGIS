@@ -119,33 +119,48 @@ export default function GisMap({
   const currentTile = tileConfigs[tileSource];
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+      {/* HUD Radar Crosshair Reticle Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-[400] flex items-center justify-center opacity-30">
+        <div className="w-[450px] h-[450px] border border-cyan-500/30 rounded-full border-dashed"></div>
+        <div className="w-[300px] h-[300px] border border-cyan-500/40 rounded-full"></div>
+        <div className="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent"></div>
+        <div className="absolute h-full w-[1px] bg-gradient-to-b from-transparent via-cyan-500/40 to-transparent"></div>
+      </div>
+
       {/* Katman Seçici */}
-      <div className="absolute top-3 right-3 z-[1000] bg-slate-900/90 backdrop-blur border border-slate-700/80 rounded-lg p-1 flex space-x-1 shadow-lg">
+      <div className="absolute top-4 right-4 z-[1000] bg-[#090e1a]/90 backdrop-blur-md border border-cyan-500/40 rounded-xl p-1.5 flex space-x-1.5 shadow-[0_0_20px_rgba(6,182,212,0.2)] font-mono">
         <button
           onClick={() => setTileSource("ESRI_DARK")}
-          className={`px-2.5 py-1 text-[10px] font-bold rounded transition ${
-            tileSource === "ESRI_DARK" ? "bg-emerald-600 text-white" : "text-slate-300 hover:text-white"
+          className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+            tileSource === "ESRI_DARK"
+              ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+              : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🌑 Karanlık GIS
+          🌑 DARK GIS
         </button>
         <button
           onClick={() => setTileSource("SATELLITE")}
-          className={`px-2.5 py-1 text-[10px] font-bold rounded transition ${
-            tileSource === "SATELLITE" ? "bg-emerald-600 text-white" : "text-slate-300 hover:text-white"
+          className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+            tileSource === "SATELLITE"
+              ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+              : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🛰️ Uydu
+          🛰️ SATELLITE
         </button>
         <button
           onClick={() => setTileSource("OPENSTREETMAP")}
-          className={`px-2.5 py-1 text-[10px] font-bold rounded transition ${
-            tileSource === "OPENSTREETMAP" ? "bg-emerald-600 text-white" : "text-slate-300 hover:text-white"
+          className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+            tileSource === "OPENSTREETMAP"
+              ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
+              : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🗺️ Sokak
+          🗺️ VECTOR
         </button>
+      </div>
       </div>
 
       <MapContainer

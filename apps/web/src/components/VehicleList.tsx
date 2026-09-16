@@ -26,20 +26,23 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
   };
 
   return (
-    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-[550px]">
-      <div className="bg-slate-900/90 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+    <div className="c4isr-glass-panel rounded-2xl overflow-hidden flex flex-col h-[550px] font-mono border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+      <div className="bg-[#090e1a]/95 px-4 py-3 border-b border-cyan-500/30 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Activity className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-xs font-bold text-slate-200 tracking-wider uppercase">
-            Aktif Araç Filosu ({vehicleList.length})
+          <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
+          <h3 className="text-xs font-black text-cyan-300 tracking-widest uppercase">
+            ACTIVE FLEET TRACKS ({vehicleList.length})
           </h3>
         </div>
+        <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded">
+          LIVE RADAR
+        </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
         {vehicleList.length === 0 ? (
-          <div className="text-center py-12 text-slate-500 text-xs font-mono">
-            Henüz bağlı araç yok.<br />Simülatör başlatıldığında araçlar burada görünecektir.
+          <div className="text-center py-16 text-slate-500 text-xs font-mono">
+            NO ACTIVE RADAR TRACKS.<br />Start Python Simulator to ingest telemetry.
           </div>
         ) : (
           vehicleList.map((state) => {
@@ -50,35 +53,38 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
               <div
                 key={state.vehicle.id}
                 onClick={() => onSelectVehicle(state.vehicle.id)}
-                className={`p-3 rounded-lg border transition cursor-pointer ${
+                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-emerald-950/60 border-emerald-500 shadow-md"
-                    : "bg-slate-900/60 border-slate-800 hover:border-slate-700"
+                    ? "bg-cyan-950/70 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                    : "bg-[#090e1c]/80 border-slate-800/90 hover:border-cyan-500/50 hover:bg-[#0c1428]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="font-bold text-sm text-slate-100">{state.vehicle.name}</div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-2 h-2 rounded-full ${t && t.batteryPercentage < 20 ? "bg-rose-500 animate-ping" : "bg-emerald-400 animate-pulse"}`}></span>
+                    <div className="font-extrabold text-sm text-slate-100 tracking-wider">{state.vehicle.name}</div>
+                  </div>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-900 text-cyan-300 border border-cyan-500/30 font-bold">
                     {getVehicleTypeName(state.vehicle.type)}
                   </span>
                 </div>
 
                 {t ? (
                   <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-400 bg-slate-950/60 p-2 rounded border border-slate-900">
-                      <div>ENLEM: <span className="text-slate-200">{t.latitude.toFixed(4)}</span></div>
-                      <div>BOYLAM: <span className="text-slate-200">{t.longitude.toFixed(4)}</span></div>
-                      <div>İRTİFA: <span className="text-slate-200">{t.altitude} m</span></div>
-                      <div>HIZ: <span className="text-slate-200">{t.speed} km/h</span></div>
+                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400 bg-[#040710] p-2 rounded-lg border border-slate-800/80">
+                      <div>LAT: <span className="text-cyan-300 font-bold">{t.latitude.toFixed(4)}</span></div>
+                      <div>LON: <span className="text-cyan-300 font-bold">{t.longitude.toFixed(4)}</span></div>
+                      <div>ALT: <span className="text-emerald-400 font-bold">{t.altitude} m</span></div>
+                      <div>SPD: <span className="text-amber-400 font-bold">{t.speed} km/h</span></div>
                     </div>
 
                     {/* Batarya Çubuğu */}
                     <div className="flex items-center space-x-2">
-                      <Battery className={`w-4 h-4 ${t.batteryPercentage < 20 ? "text-rose-500" : "text-emerald-400"}`} />
-                      <div className="flex-1 bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <Battery className={`w-4 h-4 ${t.batteryPercentage < 20 ? "text-rose-500 animate-pulse" : "text-emerald-400"}`} />
+                      <div className="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
                         <div
                           className={`h-full transition-all duration-500 ${
-                            t.batteryPercentage < 20 ? "bg-rose-500" : "bg-emerald-500"
+                            t.batteryPercentage < 20 ? "bg-rose-500" : "bg-gradient-to-r from-teal-500 to-emerald-400"
                           }`}
                           style={{ width: `${t.batteryPercentage}%` }}
                         ></div>
@@ -89,7 +95,7 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
                     </div>
                   </div>
                 ) : (
-                  <div className="text-[10px] text-slate-500 font-mono">Telemetri verisi bekleniyor...</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Awaiting telemetry telemetry packets...</div>
                 )}
               </div>
             );

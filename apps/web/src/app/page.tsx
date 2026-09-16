@@ -229,7 +229,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black animate-in fade-in duration-300">
+    <div className="min-h-screen bg-[#050913] text-slate-100 flex flex-col font-mono selection:bg-cyan-500 selection:text-black animate-in fade-in duration-300">
       {/* Üst Bar */}
       <Header
         isConnected={isConnected}
@@ -243,7 +243,7 @@ export default function Home() {
       />
 
       {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}
-      <main className="flex-1 p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-[1600px] w-full mx-auto">
+      <main className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-5 max-w-[1800px] w-full mx-auto">
         {/* Canlı Taktik Alarm Paneli & AI Anomali İkaz Kartı */}
         <AlertBanner
           alerts={alerts}
@@ -263,9 +263,9 @@ export default function Home() {
           />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Sol Kolon (2 Birim - Masaüstü): Radar Haritası & Telemetri Akışı */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-5">
             <LiveRadarMap
               trackedVehicles={trackedVehicles}
               selectedVehicleId={selectedVehicleId}

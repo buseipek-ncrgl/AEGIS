@@ -15,24 +15,24 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
   if (activeAlerts.length === 0 && !latestAiAnomalyMessage) return null;
 
   return (
-    <div className="space-y-2 mb-4 animate-fadeIn">
+    <div className="space-y-2 mb-4 animate-fadeIn font-mono">
       {/* Canlı AI Anomali Tehdit Bildirimi */}
       {latestAiAnomalyMessage && (
-        <div className="px-4 py-3 rounded-xl border border-purple-500/80 bg-purple-950/90 text-purple-100 shadow-[0_0_25px_rgba(168,85,247,0.4)] backdrop-blur flex items-center justify-between animate-pulse">
+        <div className="px-4 py-3 rounded-2xl border border-purple-500/80 bg-purple-950/95 text-purple-100 shadow-[0_0_30px_rgba(168,85,247,0.5)] backdrop-blur-xl flex items-center justify-between animate-pulse">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
-              <Bot className="w-5 h-5 animate-bounce" />
+            <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40">
+              <Bot className="w-5 h-5 animate-bounce text-purple-300" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-purple-300">
-                  🤖 YAPAY ZEKA ANOMALİ ALARMI (AI ANOMALY DETECTED)
+                <span className="text-xs font-black uppercase tracking-widest text-purple-300">
+                  🤖 KINEMATIC AI ANOMALY ALERT
                 </span>
-                <span className="text-[10px] font-mono bg-purple-900 border border-purple-700 px-1.5 py-0.5 rounded text-purple-200">
-                  Haversine Kinematik Model
+                <span className="text-[10px] font-mono bg-purple-900/90 border border-purple-600 px-2 py-0.5 rounded text-purple-200 font-bold">
+                  HAVERSINE EW ENGINE
                 </span>
               </div>
-              <p className="text-xs font-semibold mt-0.5">{latestAiAnomalyMessage}</p>
+              <p className="text-xs font-bold mt-0.5 text-purple-100">{latestAiAnomalyMessage}</p>
             </div>
           </div>
         </div>
@@ -45,32 +45,34 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
         return (
           <div
             key={alert.id}
-            className={`px-4 py-3 rounded-xl border backdrop-blur flex items-center justify-between shadow-lg transition-all ${
+            className={`px-4 py-3 rounded-2xl border backdrop-blur-xl flex items-center justify-between shadow-2xl transition-all ${
               isCritical
-                ? "bg-rose-950/90 border-rose-500/80 text-rose-100 animate-pulse shadow-rose-900/40"
-                : "bg-amber-950/90 border-amber-500/80 text-amber-100 shadow-amber-900/40"
+                ? "bg-rose-950/95 border-rose-500/90 text-rose-100 animate-pulse shadow-[0_0_30px_rgba(244,63,94,0.5)]"
+                : "bg-amber-950/95 border-amber-500/90 text-amber-100 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
             }`}
           >
             <div className="flex items-center space-x-3">
               <div
-                className={`p-2 rounded-lg ${
-                  isCritical ? "bg-rose-500/20 text-rose-400" : "bg-amber-500/20 text-amber-400"
+                className={`p-2.5 rounded-xl border ${
+                  isCritical
+                    ? "bg-rose-500/20 text-rose-400 border-rose-500/40"
+                    : "bg-amber-500/20 text-amber-400 border-amber-500/40"
                 }`}
               >
                 {isCritical ? (
                   <ShieldAlert className="w-5 h-5 animate-bounce" />
                 ) : (
-                  <AlertTriangle className="w-5 h-5" />
+                  <AlertTriangle className="w-5 h-5 animate-pulse" />
                 )}
               </div>
 
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5">
-                    <span>{isCritical ? "🚨 KRİTİK TAKTİK ALARM" : "⚠️ UYARI BİLDİRİMİ"}</span>
+                  <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <span>{isCritical ? "🚨 CRITICAL TACTICAL ALARM" : "⚠️ WARNING ALERT"}</span>
                     {alert.vehicleName && alert.vehicleName !== "Bilinmeyen Araç / Taktik Komuta" && (
-                      <span className="bg-rose-900/80 text-rose-200 border border-rose-600 px-2 py-0.5 rounded font-mono text-[10px] font-bold flex items-center gap-1">
-                        <Target className="w-3 h-3 text-rose-300" /> {alert.vehicleName}
+                      <span className="bg-rose-900/90 text-rose-200 border border-rose-500/60 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.3)]">
+                        <Target className="w-3 h-3 text-rose-300 animate-spin" /> {alert.vehicleName}
                       </span>
                     )}
                   </span>
@@ -78,20 +80,20 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
                     ({new Date(alert.createdAt).toLocaleTimeString("tr-TR")})
                   </span>
                 </div>
-                <p className="text-xs font-semibold mt-0.5">{alert.message}</p>
+                <p className="text-xs font-bold mt-0.5">{alert.message}</p>
               </div>
             </div>
 
             <button
               onClick={() => onAcknowledgeAlert(alert.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
                 isCritical
-                  ? "bg-rose-600 hover:bg-rose-500 text-white"
-                  : "bg-amber-600 hover:bg-amber-500 text-white"
+                  ? "bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]"
+                  : "bg-amber-600 hover:bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]"
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Anlaşıldı</span>
+              <span>ACKNOWLEDGE</span>
             </button>
           </div>
         );

@@ -58,27 +58,27 @@ export default function RouteReplayPlayer({
   };
 
   return (
-    <div className="bg-slate-900/95 border border-cyan-500/40 rounded-xl p-3 shadow-[0_0_30px_rgba(6,182,212,0.2)] text-slate-100 backdrop-blur font-sans">
+    <div className="c4isr-glass-panel rounded-2xl p-3.5 shadow-[0_0_30px_rgba(6,182,212,0.25)] text-slate-100 font-mono border border-cyan-500/40">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Navigation className="w-4 h-4 text-cyan-400 animate-spin" />
-          <h4 className="text-xs font-bold text-cyan-300">
-            UÇUŞ ROTA GEÇMİŞİ OYNATICI: <span className="text-slate-100">{selectedVehicleState.vehicle.name}</span>
+          <h4 className="text-xs font-black text-cyan-300 tracking-wider">
+            FLIGHT REPLAY PLAYER: <span className="text-slate-100">{selectedVehicleState.vehicle.name}</span>
           </h4>
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-100 p-1 rounded hover:bg-slate-800 transition"
+          className="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-2.5">
         {/* Zaman Çubuğu (Slider) */}
         <div className="flex items-center space-x-3 text-xs">
-          <span className="font-mono text-[10px] text-slate-400 shrink-0">
-            {currentIndex + 1} / {sortedHistory.length} Pkt
+          <span className="font-mono text-[10px] text-slate-400 shrink-0 font-bold">
+            {currentIndex + 1} / {sortedHistory.length} PKTS
           </span>
           <input
             type="range"
@@ -86,27 +86,27 @@ export default function RouteReplayPlayer({
             max={sortedHistory.length - 1}
             value={currentIndex}
             onChange={handleSeek}
-            className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-950 rounded-lg"
+            className="w-full accent-cyan-400 cursor-pointer h-2 bg-slate-950 rounded-lg border border-cyan-500/30"
           />
-          <span className="font-mono text-[10px] text-cyan-400 shrink-0">
+          <span className="font-mono text-[10px] text-cyan-300 font-bold shrink-0">
             {currentPoint ? new Date(currentPoint.timestamp).toLocaleTimeString("tr-TR") : "--:--"}
           </span>
         </div>
 
         {/* Kontrol Butonları */}
-        <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800">
+        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-800">
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="bg-cyan-950 hover:bg-cyan-900 border border-cyan-700 text-cyan-300 px-3 py-1 rounded-lg flex items-center space-x-1 font-bold transition"
+              className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1 rounded-lg flex items-center space-x-1.5 font-extrabold transition shadow-[0_0_12px_rgba(6,182,212,0.3)] cursor-pointer"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-              <span>{isPlaying ? "Durdur" : "Oynat"}</span>
+              <span>{isPlaying ? "PAUSE" : "PLAY"}</span>
             </button>
 
             <button
               onClick={handleReset}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center space-x-1 transition text-[11px]"
+              className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center space-x-1 transition text-[11px] cursor-pointer"
               title="Başa Sar"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -114,23 +114,23 @@ export default function RouteReplayPlayer({
           </div>
 
           {/* Oynatma Hızı */}
-          <div className="flex items-center space-x-1 text-[11px] bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
+          <div className="flex items-center space-x-1 text-[11px] bg-[#050913] px-2.5 py-1 rounded-lg border border-cyan-500/30">
             <FastForward className="w-3 h-3 text-cyan-400" />
             <button
               onClick={() => setSpeed(1)}
-              className={`px-1 rounded ${speed === 1 ? "bg-cyan-500 text-black font-bold" : "text-slate-400"}`}
+              className={`px-1.5 rounded font-bold cursor-pointer ${speed === 1 ? "bg-cyan-400 text-slate-950 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
               1x
             </button>
             <button
               onClick={() => setSpeed(2)}
-              className={`px-1 rounded ${speed === 2 ? "bg-cyan-500 text-black font-bold" : "text-slate-400"}`}
+              className={`px-1.5 rounded font-bold cursor-pointer ${speed === 2 ? "bg-cyan-400 text-slate-950 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
               2x
             </button>
             <button
               onClick={() => setSpeed(4)}
-              className={`px-1 rounded ${speed === 4 ? "bg-cyan-500 text-black font-bold" : "text-slate-400"}`}
+              className={`px-1.5 rounded font-bold cursor-pointer ${speed === 4 ? "bg-cyan-400 text-slate-950 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "text-slate-400"}`}
             >
               4x
             </button>
@@ -138,9 +138,9 @@ export default function RouteReplayPlayer({
 
           {/* Anlık İrtifa & Hız Detayı */}
           {currentPoint && (
-            <div className="hidden sm:flex items-center space-x-2 text-[11px] font-mono text-slate-300">
-              <span>İrtifa: <strong className="text-cyan-400">{currentPoint.altitude}m</strong></span>
-              <span>Hız: <strong className="text-cyan-400">{currentPoint.speed}km/h</strong></span>
+            <div className="hidden sm:flex items-center space-x-3 text-[11px] font-mono text-slate-300">
+              <span>ALT: <strong className="text-emerald-400 font-bold">{currentPoint.altitude}m</strong></span>
+              <span>SPD: <strong className="text-amber-400 font-bold">{currentPoint.speed}km/h</strong></span>
             </div>
           )}
         </div>

@@ -104,39 +104,38 @@ export default function ManualAlertModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-      <div className="bg-slate-900 border border-rose-900/60 rounded-2xl p-6 w-full max-w-lg shadow-[0_0_50px_rgba(225,29,72,0.3)] relative text-slate-100 animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#03060d]/85 backdrop-blur-xl p-4 font-mono">
+      <div className="bg-[#0a1020]/95 border border-rose-500/50 rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-[0_0_80px_rgba(244,63,94,0.35)] relative text-slate-100 animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-100 p-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors"
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-100 p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center space-x-3 mb-5">
-          <div className="bg-rose-500/20 border border-rose-500/40 p-3 rounded-xl text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+        <div className="flex items-center space-x-3.5 mb-6">
+          <div className="bg-rose-500/20 border border-rose-500/50 p-3.5 rounded-2xl text-rose-400 shadow-[0_0_25px_rgba(244,63,94,0.4)] animate-pulse">
             <Radio className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <span>Taktik Müdahale & Manuel Alarm</span>
-              <span className="text-[10px] bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded font-mono uppercase">
-                OPERATÖR
-              </span>
+            <h2 className="text-lg font-black text-slate-100 flex items-center gap-2 tracking-wider">
+              <span>MANUAL TACTICAL EMERGENCY BROADCAST</span>
             </h2>
-            <p className="text-xs text-slate-400">Canlı Radar Ekranlarına Anlık İkaz ve Siren Fırlat</p>
+            <p className="text-xs text-rose-300 font-sans mt-0.5">
+              Broadcast Real-Time Siren Alarms to All Connected C4ISR Displays
+            </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 bg-rose-950/80 border border-rose-700 text-rose-200 text-xs p-3 rounded-xl flex items-center space-x-2 animate-pulse">
+          <div className="mb-4 bg-rose-950/90 border border-rose-500 text-rose-200 text-xs p-3.5 rounded-xl flex items-center space-x-2 animate-pulse shadow-[0_0_20px_rgba(244,63,94,0.3)]">
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-4 bg-emerald-950/80 border border-emerald-700 text-emerald-200 text-xs p-3 rounded-xl flex items-center space-x-2">
+          <div className="mb-4 bg-emerald-950/90 border border-emerald-500 text-emerald-200 text-xs p-3.5 rounded-xl flex items-center space-x-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
             <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{successMsg}</span>
           </div>

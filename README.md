@@ -177,6 +177,40 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 
 ---
 
+## 📂 Repository & Directory Structure
+
+```
+AEGIS/
+├── 📁 apps/
+│   ├── 📁 simulator/              # Python Real-Time Telemetry & Digital Twin Simulator
+│   │   ├── main.py                # Flight telemetry loop & STM vehicle registration
+│   │   └── vehicle_simulator.py   # GPS, altitude, battery & thermal kinematic model
+│   └── 📁 web/                    # Next.js 14 C4ISR Tactical Web Command Center
+│       ├── 📁 src/
+│       │   ├── 📁 app/            # App Router (page.tsx, layout.tsx, C4ISR login gate)
+│       │   ├── 📁 components/     # LiveRadarMap, VehicleList, RouteReplayPlayer, Header, etc.
+│       │   ├── 📁 lib/            # SignalR client, Web Audio sirens, JWT auth helpers
+│       │   └── 📁 types/          # TypeScript telemetry & alert interfaces
+│       └── package.json
+├── 📁 services/
+│   ├── 📁 aegis-api/              # .NET 9 ASP.NET Core C4ISR Backend Microservice
+│   │   ├── 📁 src/
+│   │   │   ├── 📁 Aegis.Api/             # Controllers, SignalR Hub, gRPC Telemetry Service
+│   │   │   ├── 📁 Aegis.Application/     # CQRS, Telemetry & Anomaly Services, DTOs
+│   │   │   ├── 📁 Aegis.Domain/          # Entities (Vehicle, Alert), Value Objects, Enums
+│   │   │   └── 📁 Aegis.Infrastructure/  # EF Core, Redis Cache, Kafka Producer, JWT
+│   │   └── 📁 tests/                     # xUnit Unit & Integration Test Suites (24/24 PASS)
+│   └── 📁 aegis-analytics/        # Java 21 / Spring Boot 3 Kafka Analytics Listener
+├── 📁 deployments/
+│   ├── 📁 k8s/                    # Kubernetes Deployment, Service & HPA Manifests
+│   └── 📁 helm/                   # Helm v3.0.0 Production Chart
+├── 📁 docs/                        # Architecture documentation & walkthrough chapters
+├── docker-compose.yml             # Local Multi-Container Infrastructure Stack
+└── README.md                      # Primary Project Documentation
+```
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### Prerequisites

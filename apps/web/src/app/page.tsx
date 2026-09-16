@@ -257,8 +257,8 @@ export default function Home() {
             latestAiAnomalyMessage={latestAiAnomalyMessage}
           />
 
-          {/* Seçili Araç Uçuş Rota Geçmişi Oynatıcısı */}
-          {selectedVehicleState && (
+          {/* Seçili Araç Uçuş Rota Geçmişi Oynatıcısı (Sadece Harita ve Komuta Ekranında Görünür) */}
+          {(activeTab === "dashboard" || activeTab === "map") && selectedVehicleState && (
             <RouteReplayPlayer
               selectedVehicleState={selectedVehicleState}
               onClose={() => {
@@ -314,32 +314,23 @@ export default function Home() {
             </div>
           )}
 
-          {/* TAB 3: Özel Filo Yönetim & Harita Görünümü (Fleet) */}
+          {/* TAB 3: Özel Filo Yönetim & Envanter Konsolu (Fleet) */}
           {activeTab === "fleet" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
-              <div className="lg:col-span-1">
-                <VehicleList
-                  trackedVehicles={trackedVehicles}
-                  selectedVehicleId={selectedVehicleId}
-                  onSelectVehicle={(id) => {
-                    setSelectedVehicleId(id);
-                    setPlaybackTelemetry(null);
-                  }}
-                />
-              </div>
-
-              <div className="lg:col-span-2">
-                <LiveRadarMap
-                  trackedVehicles={trackedVehicles}
-                  selectedVehicleId={selectedVehicleId}
-                  onSelectVehicle={(id) => {
-                    setSelectedVehicleId(id);
-                    setPlaybackTelemetry(null);
-                  }}
-                  playbackTelemetry={playbackTelemetry}
-                  className="w-full h-[550px]"
-                />
-              </div>
+            <div className="w-full">
+              <VehicleList
+                trackedVehicles={trackedVehicles}
+                selectedVehicleId={selectedVehicleId}
+                onSelectVehicle={(id) => {
+                  setSelectedVehicleId(id);
+                  setPlaybackTelemetry(null);
+                }}
+                onPlayRoute={(id) => {
+                  setSelectedVehicleId(id);
+                  setPlaybackTelemetry(null);
+                  setActiveTab("map");
+                }}
+                isFullView={true}
+              />
             </div>
           )}
 

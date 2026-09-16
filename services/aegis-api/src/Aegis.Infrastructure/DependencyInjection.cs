@@ -46,6 +46,9 @@ public static class DependencyInjection
         });
         services.AddSingleton<ICacheService, RedisCacheService>();
 
+        // JWT Token Üretici Kaydı (Singleton)
+        services.AddSingleton<IJwtTokenGenerator, Aegis.Infrastructure.Security.JwtTokenGenerator>();
+
         return services;
     }
 }

@@ -1,8 +1,11 @@
+using System.Text;
 using Aegis.Application;
 using Aegis.Application.Abstractions.Services;
 using Aegis.Infrastructure;
 using Aegis.Api.Hubs;
 using Aegis.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
@@ -12,6 +15,32 @@ var builder = WebApplication.CreateBuilder(args);
 // Application ve Infrastructure katmanlarını kaydet
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// JWT Authentication & Authorization Yapılandırması
+var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "AEGIS_SUPER_SECRET_SECURITY_KEY_2026_VERY_LONG_SAFE_KEY!";
+var issuer = builder.Configuration["Jwt:Issuer"] ?? "AegisCommandCenter";
+var audience = builder.Configuration["Jwt:Audience"] ?? "AegisClients";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // SignalR ve Canlı Yayın Servisi
 builder.Services.AddSignalR();
@@ -52,6 +81,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 
 // OpenTelemetry Prometheus Scrape Endpoint (/metrics)
 app.UseOpenTelemetryPrometheusScrapingEndpoint();

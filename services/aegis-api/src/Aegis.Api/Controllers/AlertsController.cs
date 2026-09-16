@@ -1,5 +1,6 @@
 using Aegis.Application.Alerts.DTOs;
 using Aegis.Application.Alerts.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aegis.Api.Controllers;
@@ -16,6 +17,7 @@ public class AlertsController(IAlertService alertService) : ControllerBase
     }
 
     [HttpPost("{id:guid}/acknowledge")]
+    [Authorize(Roles = "Operator")]
     public async Task<IActionResult> AcknowledgeAlert(Guid id, CancellationToken cancellationToken)
     {
         try

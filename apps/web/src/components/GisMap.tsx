@@ -76,19 +76,29 @@ export default function GisMap({
   const activeLng =
     playbackTelemetry?.longitude ?? selectedState?.latestTelemetry?.longitude ?? 32.8597;
 
-  // Ankara & İzmir Askeri Yasaklı Bölge (No-Fly Zone Geofence Polygons)
-  const ankaraRestrictedZone: [number, number][] = [
-    [39.9650, 32.8200],
-    [39.9750, 32.9000],
-    [39.9100, 32.9150],
-    [39.9000, 32.8300],
+  // Gerçek Türkiye Havacılık Haritaları (ICAO / SHGM AIP Official Coordinates)
+  // 1. LT-P1 Ankara Protokol & Anıtkabir Koruma Hava Sahası (Prohibited Area)
+  const ltp1AnkaraProtocolsZone: [number, number][] = [
+    [39.9380, 32.8250],
+    [39.9480, 32.8650],
+    [39.9100, 32.8800],
+    [39.8950, 32.8350],
   ];
 
-  const izmirRestrictedZone: [number, number][] = [
-    [38.4800, 27.1000],
-    [38.5000, 27.1800],
-    [38.4200, 27.2000],
-    [38.4100, 27.1200],
+  // 2. LT-R4 Ankara Mürted / Akıncı Askeri Üssü Tahsisli Bölge (Restricted Area)
+  const ltr4AkanciMilitaryZone: [number, number][] = [
+    [40.0500, 32.5200],
+    [40.1200, 32.6500],
+    [40.0200, 32.7200],
+    [39.9600, 32.5800],
+  ];
+
+  // 3. LT-P12 İzmir Çiğli 2. Ana Jet Üssü Askeri Uçuş Sahası (Prohibited Area)
+  const ltp12CigliAirbaseZone: [number, number][] = [
+    [38.4900, 27.0000],
+    [38.5400, 27.0800],
+    [38.4600, 27.1400],
+    [38.4100, 27.0500],
   ];
 
   const tileConfigs = {
@@ -148,39 +158,57 @@ export default function GisMap({
 
         <MapRecenter lat={activeLat} lng={activeLng} />
 
-        {/* Askeri Yasaklı Hava Sahaları (Geofence No-Fly Zone Polygons) */}
+        {/* Gerçek Türkiye ICAO/AIP Askeri & Protokol Yasaklı Bölgeleri */}
         <Polygon
-          positions={ankaraRestrictedZone}
+          positions={ltp1AnkaraProtocolsZone}
           pathOptions={{
             color: "#f43f5e",
             fillColor: "#f43f5e",
-            fillOpacity: 0.25,
+            fillOpacity: 0.28,
             weight: 2,
             dashArray: "4, 6",
           }}
         >
           <Popup>
             <div className="font-sans text-xs p-1">
-              <strong className="text-rose-700 block font-bold">🚫 ANKARA ASKERİ YASAKLI BÖLGE</strong>
-              <span className="text-slate-700">Geofence İhlali Halinde Taktik Alarm Fırlatılır.</span>
+              <strong className="text-rose-700 block font-bold">🚫 LT-P1 ANKARA PROTOKOL & ANITKABİR KORUMA SAHASI</strong>
+              <span className="text-slate-700">SHGM / ICAO Resmi Uçuşa Yasaklı Hava Sahası (Prohibited).</span>
             </div>
           </Popup>
         </Polygon>
 
         <Polygon
-          positions={izmirRestrictedZone}
+          positions={ltr4AkanciMilitaryZone}
+          pathOptions={{
+            color: "#eab308",
+            fillColor: "#eab308",
+            fillOpacity: 0.2,
+            weight: 2,
+            dashArray: "5, 5",
+          }}
+        >
+          <Popup>
+            <div className="font-sans text-xs p-1">
+              <strong className="text-amber-700 block font-bold">⚠️ LT-R4 MÜRTED / AKINCI ASKERİ TAHSİSLİ SAHA</strong>
+              <span className="text-slate-700">Askeri Uçuş Bölgesi (Restricted Airspace).</span>
+            </div>
+          </Popup>
+        </Polygon>
+
+        <Polygon
+          positions={ltp12CigliAirbaseZone}
           pathOptions={{
             color: "#f43f5e",
             fillColor: "#f43f5e",
-            fillOpacity: 0.25,
+            fillOpacity: 0.28,
             weight: 2,
             dashArray: "4, 6",
           }}
         >
           <Popup>
             <div className="font-sans text-xs p-1">
-              <strong className="text-rose-700 block font-bold">🚫 İZMİR ASKERİ HAVA SAHASI (NO-FLY ZONE)</strong>
-              <span className="text-slate-700">İzin Olmadan Girilemez.</span>
+              <strong className="text-rose-700 block font-bold">🚫 LT-P12 İZMİR ÇİĞLİ 2. ANA JET ÜSSÜ SAHASI</strong>
+              <span className="text-slate-700">TSK Askeri Hava Savunma Bölgesi (Prohibited).</span>
             </div>
           </Popup>
         </Polygon>

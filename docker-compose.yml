@@ -45,5 +45,30 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: always
 
+  aegis-prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: aegis-prometheus
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  aegis-grafana:
+    image: grafana/grafana:10.1.0
+    container_name: aegis-grafana
+    depends_on:
+      - aegis-prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: always
+
 volumes:
   postgres_data:
+  grafana_data:

@@ -3,6 +3,9 @@ using Aegis.Application.Abstractions.Services;
 using Aegis.Infrastructure;
 using Aegis.Api.Hubs;
 using Aegis.Api.Services;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +34,15 @@ builder.Services.AddControllers();
 builder.Services.AddGrpc();
 builder.Services.AddOpenApi();
 
+// OpenTelemetry Metrik Kaydı (Prometheus için Canlı Sistem Ölçümü)
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics.AddAspNetCoreInstrumentation()
+               .AddHttpClientInstrumentation()
+               .AddPrometheusExporter();
+    });
+
 var app = builder.Build();
 
 // HTTP Pipeline Konfigürasyonu
@@ -41,13 +53,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 
+// OpenTelemetry Prometheus Scrape Endpoint (/metrics)
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
+
 // Ana Sayfa (Root) Hoşgeldiniz & API Durum Endpoint'i
 app.MapGet("/", () => Results.Ok(new 
 { 
     system = "AEGIS Command & Control API", 
     status = "Online", 
-    version = "v2.0 (Distributed Architecture)",
-    endpoints = new[] { "/api/vehicles", "/api/telemetry", "/api/alerts", "/hubs/telemetry", "gRPC: TelemetryGrpc" }
+    version = "v3.0 (Enterprise Cloud-Native)",
+    endpoints = new[] { "/api/vehicles", "/api/telemetry", "/api/alerts", "/hubs/telemetry", "/metrics (Prometheus)", "gRPC: TelemetryGrpc" }
 }));
 
 // REST Controller Endpoint Eşlemesi

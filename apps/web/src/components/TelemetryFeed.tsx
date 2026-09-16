@@ -1,7 +1,7 @@
 "use client";
 
 import { TelemetryDto, AnomalyType } from "@/types/telemetry";
-import { Terminal, Radio, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Terminal, Radio, AlertTriangle, ShieldAlert, Download } from "lucide-react";
 
 interface TelemetryFeedProps {
   telemetryLogs: { telemetry: TelemetryDto; vehicleName: string }[];
@@ -33,6 +33,36 @@ export default function TelemetryFeed({ telemetryLogs }: TelemetryFeedProps) {
     }
   };
 
+  const exportCsvReport = () => {
+    if (telemetryLogs.length === 0) return;
+
+    const headers = ["Zaman", "Araç İsmi", "Enlem", "Boylam", "İrtifa (m)", "Hız (km/h)", "Batarya (%)", "AI Anomali"];
+    const rows = telemetryLogs.map((item) => {
+      const anomaliesStr = item.telemetry.anomalies
+        ? item.telemetry.anomalies.map((a) => a.description.replace(/,/g, " ")).join("; ")
+        : "Yok";
+      return [
+        new Date(item.telemetry.timestamp).toLocaleTimeString("tr-TR"),
+        item.vehicleName,
+        item.telemetry.latitude.toFixed(6),
+        item.telemetry.longitude.toFixed(6),
+        item.telemetry.altitude,
+        item.telemetry.speed,
+        item.telemetry.batteryPercentage,
+        `"${anomaliesStr}"`,
+      ].join(",");
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `AEGIS_TAKTIK_UCUS_RAPORU_${new Date().toISOString().substring(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-[280px]">
       <div className="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
@@ -42,9 +72,22 @@ export default function TelemetryFeed({ telemetryLogs }: TelemetryFeedProps) {
             Canlı Telemetri & Yapay Zeka Anomali Akışı (SignalR Websocket)
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-          <Radio className="w-3 h-3 animate-pulse" /> Akış Aktif
-        </span>
+
+        <div className="flex items-center space-x-3">
+          {telemetryLogs.length > 0 && (
+            <button
+              onClick={exportCsvReport}
+              className="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-300 px-2.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition shadow-[0_0_8px_rgba(16,185,129,0.2)]"
+              title="Canlı Telemetri ve AI Anomali Raporunu CSV İndir"
+            >
+              <Download className="w-3 h-3 text-emerald-400" /> Rapor İndir (CSV)
+            </button>
+          )}
+
+          <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+            <Radio className="w-3 h-3 animate-pulse" /> Akış Aktif
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 font-mono text-xs space-y-1.5 bg-slate-950">

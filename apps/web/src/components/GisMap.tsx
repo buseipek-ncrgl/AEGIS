@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Polygon, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { TrackedVehicleState, VehicleType, TelemetryDto } from "@/types/telemetry";
@@ -76,6 +76,21 @@ export default function GisMap({
   const activeLng =
     playbackTelemetry?.longitude ?? selectedState?.latestTelemetry?.longitude ?? 32.8597;
 
+  // Ankara & İzmir Askeri Yasaklı Bölge (No-Fly Zone Geofence Polygons)
+  const ankaraRestrictedZone: [number, number][] = [
+    [39.9650, 32.8200],
+    [39.9750, 32.9000],
+    [39.9100, 32.9150],
+    [39.9000, 32.8300],
+  ];
+
+  const izmirRestrictedZone: [number, number][] = [
+    [38.4800, 27.1000],
+    [38.5000, 27.1800],
+    [38.4200, 27.2000],
+    [38.4100, 27.1200],
+  ];
+
   const tileConfigs = {
     ESRI_DARK: {
       url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -95,7 +110,7 @@ export default function GisMap({
 
   return (
     <div className="relative w-full h-full">
-      {/* Katman Seçici (Layer Selector) */}
+      {/* Katman Seçici */}
       <div className="absolute top-3 right-3 z-[1000] bg-slate-900/90 backdrop-blur border border-slate-700/80 rounded-lg p-1 flex space-x-1 shadow-lg">
         <button
           onClick={() => setTileSource("ESRI_DARK")}
@@ -132,6 +147,43 @@ export default function GisMap({
         <TileLayer key={tileSource} attribution={currentTile.attribution} url={currentTile.url} maxZoom={18} />
 
         <MapRecenter lat={activeLat} lng={activeLng} />
+
+        {/* Askeri Yasaklı Hava Sahaları (Geofence No-Fly Zone Polygons) */}
+        <Polygon
+          positions={ankaraRestrictedZone}
+          pathOptions={{
+            color: "#f43f5e",
+            fillColor: "#f43f5e",
+            fillOpacity: 0.25,
+            weight: 2,
+            dashArray: "4, 6",
+          }}
+        >
+          <Popup>
+            <div className="font-sans text-xs p-1">
+              <strong className="text-rose-700 block font-bold">🚫 ANKARA ASKERİ YASAKLI BÖLGE</strong>
+              <span className="text-slate-700">Geofence İhlali Halinde Taktik Alarm Fırlatılır.</span>
+            </div>
+          </Popup>
+        </Polygon>
+
+        <Polygon
+          positions={izmirRestrictedZone}
+          pathOptions={{
+            color: "#f43f5e",
+            fillColor: "#f43f5e",
+            fillOpacity: 0.25,
+            weight: 2,
+            dashArray: "4, 6",
+          }}
+        >
+          <Popup>
+            <div className="font-sans text-xs p-1">
+              <strong className="text-rose-700 block font-bold">🚫 İZMİR ASKERİ HAVA SAHASI (NO-FLY ZONE)</strong>
+              <span className="text-slate-700">İzin Olmadan Girilemez.</span>
+            </div>
+          </Popup>
+        </Polygon>
 
         {/* Araç Rota İzi Çizimi (Neon Flight Path Trails) */}
         {vehicleList.map((state) => {

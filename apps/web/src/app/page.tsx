@@ -8,6 +8,7 @@ import TelemetryFeed from "@/components/TelemetryFeed";
 import AlertBanner from "@/components/AlertBanner";
 import ManualAlertModal from "@/components/ManualAlertModal";
 import RouteReplayPlayer from "@/components/RouteReplayPlayer";
+import C4IsrLoginGate from "@/components/C4IsrLoginGate";
 import { createSignalRConnection } from "@/lib/signalr";
 import { playTacticalSiren } from "@/lib/audioAlert";
 import { Vehicle, TelemetryDto, TrackedVehicleState } from "@/types/telemetry";
@@ -22,9 +23,10 @@ export default function Home() {
   const [telemetryLogs, setTelemetryLogs] = useState<{ telemetry: TelemetryDto; vehicleName: string }[]>([]);
   const [alerts, setAlerts] = useState<AlertDto[]>([]);
   
-  // JWT Authentication State
+  // JWT Authentication & Guest State
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [operatorUser, setOperatorUser] = useState<string | null>(null);
+  const [isGuestView, setIsGuestView] = useState<boolean>(false);
 
   // Modal, Replay & AI Anomaly Banner State
   const [isManualAlertModalOpen, setIsManualAlertModalOpen] = useState<boolean>(false);
@@ -34,13 +36,16 @@ export default function Home() {
   useEffect(() => {
     const savedToken = localStorage.getItem("aegis_jwt_token");
     const savedUser = localStorage.getItem("aegis_operator_user");
-    if (savedToken) setJwtToken(savedToken);
-    if (savedUser) setOperatorUser(savedUser);
+    if (savedToken) {
+      setJwtToken(savedToken);
+      setOperatorUser(savedUser);
+    }
   }, []);
 
   const handleLoginSuccess = (token: string, username: string) => {
     setJwtToken(token);
     setOperatorUser(username);
+    setIsGuestView(false);
     fetchActiveAlerts(token);
     playTacticalSiren("ack");
   };
@@ -50,6 +55,7 @@ export default function Home() {
     localStorage.removeItem("aegis_operator_user");
     setJwtToken(null);
     setOperatorUser(null);
+    setIsGuestView(false);
   };
 
   // 1. Mevcut Araçları REST API'den Çek
@@ -146,7 +152,6 @@ export default function Home() {
     connection.on("ReceiveTelemetry", (telemetry: TelemetryDto) => {
       if (!isMounted) return;
 
-      // AI Anomali tespiti varsa ekranda mor AI bildirimi fırlat ve ikaz sirenini çal
       if (telemetry.anomalies && telemetry.anomalies.length > 0) {
         const firstAnomaly = telemetry.anomalies[0];
         setLatestAiAnomalyMessage(firstAnomaly.description);
@@ -201,15 +206,25 @@ export default function Home() {
 
   const selectedVehicleState = selectedVehicleId ? trackedVehicles.get(selectedVehicleId) || null : null;
 
+  // Sıfır-Güven (Zero-Trust): Oturum açılmamışsa ve misafir izleyici seçilmemişse Giriş Kapısını Göster
+  if (!jwtToken && !isGuestView) {
+    return (
+      <C4IsrLoginGate
+        onLoginSuccess={handleLoginSuccess}
+        onGuestAccess={() => setIsGuestView(true)}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black animate-in fade-in duration-300">
       {/* Üst Bar */}
       <Header
         isConnected={isConnected}
         activeVehiclesCount={trackedVehicles.size}
         totalTelemetryCount={telemetryLogs.length}
         jwtToken={jwtToken}
-        operatorUser={operatorUser}
+        operatorUser={isGuestView ? "Misafir" : operatorUser}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
         onOpenManualAlertModal={() => setIsManualAlertModalOpen(true)}

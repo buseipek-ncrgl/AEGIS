@@ -20,6 +20,7 @@ interface LiveRadarMapProps {
   selectedVehicleId: string | null;
   onSelectVehicle: (id: string) => void;
   playbackTelemetry?: TelemetryDto | null;
+  className?: string;
 }
 
 export default function LiveRadarMap({
@@ -27,6 +28,7 @@ export default function LiveRadarMap({
   selectedVehicleId,
   onSelectVehicle,
   playbackTelemetry,
+  className,
 }: LiveRadarMapProps) {
   const [mapMode, setMapMode] = useState<"REAL_GIS" | "RADAR_GRID">("REAL_GIS");
 
@@ -62,7 +64,7 @@ export default function LiveRadarMap({
   };
 
   return (
-    <div className="relative c4isr-glass-panel border border-cyan-500/40 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.2)] h-[560px] flex flex-col select-none font-mono">
+    <div className={`relative c4isr-glass-panel border border-cyan-500/40 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.2)] flex flex-col select-none font-mono ${className || "h-[560px]"}`}>
       {/* Harita Üst Kontrol Barı */}
       <div className="bg-[#090e1a]/95 backdrop-blur-md px-4 py-3 border-b border-cyan-500/30 flex items-center justify-between z-20">
         <div className="flex items-center space-x-2">

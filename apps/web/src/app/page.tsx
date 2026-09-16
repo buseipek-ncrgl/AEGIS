@@ -300,7 +300,7 @@ export default function Home() {
 
           {/* TAB 2: Tam Ekran Harita Görünümü (Map) */}
           {activeTab === "map" && (
-            <div className="w-full h-[780px]">
+            <div className="w-full h-[calc(100vh-140px)] min-h-[720px]">
               <LiveRadarMap
                 trackedVehicles={trackedVehicles}
                 selectedVehicleId={selectedVehicleId}
@@ -309,21 +309,37 @@ export default function Home() {
                   setPlaybackTelemetry(null);
                 }}
                 playbackTelemetry={playbackTelemetry}
+                className="w-full h-full"
               />
             </div>
           )}
 
-          {/* TAB 3: Özel Filo Yönetim Görünümü (Fleet) */}
+          {/* TAB 3: Özel Filo Yönetim & Harita Görünümü (Fleet) */}
           {activeTab === "fleet" && (
-            <div className="w-full">
-              <VehicleList
-                trackedVehicles={trackedVehicles}
-                selectedVehicleId={selectedVehicleId}
-                onSelectVehicle={(id) => {
-                  setSelectedVehicleId(id);
-                  setPlaybackTelemetry(null);
-                }}
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
+              <div className="lg:col-span-1">
+                <VehicleList
+                  trackedVehicles={trackedVehicles}
+                  selectedVehicleId={selectedVehicleId}
+                  onSelectVehicle={(id) => {
+                    setSelectedVehicleId(id);
+                    setPlaybackTelemetry(null);
+                  }}
+                />
+              </div>
+
+              <div className="lg:col-span-2">
+                <LiveRadarMap
+                  trackedVehicles={trackedVehicles}
+                  selectedVehicleId={selectedVehicleId}
+                  onSelectVehicle={(id) => {
+                    setSelectedVehicleId(id);
+                    setPlaybackTelemetry(null);
+                  }}
+                  playbackTelemetry={playbackTelemetry}
+                  className="w-full h-[550px]"
+                />
+              </div>
             </div>
           )}
 

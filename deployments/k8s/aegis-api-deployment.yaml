@@ -1,0 +1,100 @@
+# ==============================================================================
+# AEGIS ENTERPRISE CLOUD-NATIVE PLATFORM
+# Kubernetes (K8s) Deployment & Service Manifest: Aegis API (.NET 9)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. DEPLOYMENT (Konteyner Yönetim ve Canlılık Şablonu)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-api-deployment
+  namespace: aegis-system
+  labels:
+    app.kubernetes.io/name: aegis-api
+    app.kubernetes.io/part-of: aegis-platform
+    app.kubernetes.io/component: backend-api
+spec:
+  # Başlangıçta aynı anda kaç adet kopya (Pod) çalışacağını belirtiyoruz.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aegis-api
+  template:
+    metadata:
+      labels:
+        app: aegis-api
+    spec:
+      containers:
+        - name: aegis-api
+          image: aegis-api:v3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http-port
+          
+          # Çevre Değişkenleri (Environment Variables)
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ConnectionStrings__DefaultConnection
+              value: "Host=postgres-service;Port=5432;Database=AegisDb;Username=aegis_user;Password=aegis_secure_pass"
+            - name: Kafka__BootstrapServers
+              value: "kafka-service:9092"
+            - name: Redis__ConnectionString
+              value: "redis-service:6379"
+            - name: Jwt__Secret
+              value: "AEGIS_TAKTIK_KOMUTA_GUVENLIK_SECRET_KEY_2026_V3_ENTERPRISE_LONG_KEY!"
+            - name: Jwt__Issuer
+              value: "Aegis.Api"
+            - name: Jwt__Audience
+              value: "Aegis.Clients"
+
+          # Pod Sağlık (Health Check) Kontrolleri
+          # Liveness Probe: Konteyner kitlendi mi? Kitlendiyse öldürüp yeniden başlat.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+          # Readiness Probe: Konteyner trafiği karşılamaya hazır mı? Hazır değilse istek yönlendirme.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          # Kaynak (CPU & RAM) Sınırlandırması
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m" # 0.25 CPU Çekirdeği
+            limits:
+              memory: "512Mi"
+              cpu: "500m" # 0.5 CPU Çekirdeği
+
+---
+
+# ------------------------------------------------------------------------------
+# 2. SERVICE (Pod'lara Sabit IP ve Yük Dengeleme Sunan Danışma Katmanı)
+# ------------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-api-service
+  namespace: aegis-system
+  labels:
+    app.kubernetes.io/name: aegis-api
+spec:
+  type: ClusterIP # Kubernetes kümesi içindeki diğer servisler bu isimle erişir
+  ports:
+    - port: 80
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    app: aegis-api

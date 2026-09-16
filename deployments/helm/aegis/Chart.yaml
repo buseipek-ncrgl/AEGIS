@@ -1,0 +1,18 @@
+apiVersion: v2
+name: aegis
+description: AEGIS Enterprise Tactical Telemetry & Command Control Platform Helm Chart
+type: application
+version: 3.0.0
+appVersion: "3.0.0"
+maintainers:
+  - name: Aegis Engineering Team
+    email: devops@aegis-platform.io
+keywords:
+  - tactical
+  - telemetry
+  - microservices
+  - dotnet
+  - spring-boot
+  - kafka
+  - redis
+  - kubernetes

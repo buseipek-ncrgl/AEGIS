@@ -18,6 +18,30 @@ export default function Home() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [telemetryLogs, setTelemetryLogs] = useState<{ telemetry: TelemetryDto; vehicleName: string }[]>([]);
   const [alerts, setAlerts] = useState<AlertDto[]>([]);
+  
+  // JWT Authentication State
+  const [jwtToken, setJwtToken] = useState<string | null>(null);
+  const [operatorUser, setOperatorUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("aegis_jwt_token");
+    const savedUser = localStorage.getItem("aegis_operator_user");
+    if (savedToken) setJwtToken(savedToken);
+    if (savedUser) setOperatorUser(savedUser);
+  }, []);
+
+  const handleLoginSuccess = (token: string, username: string) => {
+    setJwtToken(token);
+    setOperatorUser(username);
+    fetchActiveAlerts(token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("aegis_jwt_token");
+    localStorage.removeItem("aegis_operator_user");
+    setJwtToken(null);
+    setOperatorUser(null);
+  };
 
   // 1. Mevcut Araçları REST API'den Çek
   const fetchVehicles = async () => {
@@ -43,10 +67,16 @@ export default function Home() {
     }
   };
 
-  // Aktif Alarmları Çek
-  const fetchActiveAlerts = async () => {
+  // Aktif Alarmları Çek (JWT Token ile Yetkili İstek)
+  const fetchActiveAlerts = async (tokenOverride?: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/alerts/active`);
+      const token = tokenOverride || jwtToken;
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/alerts/active`, { headers });
       if (res.ok) {
         const data: AlertDto[] = await res.json();
         setAlerts(data);
@@ -59,7 +89,11 @@ export default function Home() {
   const handleAcknowledgeAlert = async (id: string) => {
     setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, isAcknowledged: true } : a)));
     try {
-      await fetch(`${API_BASE_URL}/alerts/${id}/acknowledge`, { method: "POST" });
+      const headers: Record<string, string> = {};
+      if (jwtToken) {
+        headers["Authorization"] = `Bearer ${jwtToken}`;
+      }
+      await fetch(`${API_BASE_URL}/alerts/${id}/acknowledge`, { method: "POST", headers });
     } catch (err) {
       console.warn("Alarm onaylanamadı:", err);
     }
@@ -123,7 +157,7 @@ export default function Home() {
       });
     });
 
-    // Canlı Taktik Alarm Düğünde
+    // Canlı Taktik Alarm Düştüğünde
     connection.on("ReceiveAlert", (alert: AlertDto) => {
       if (!isMounted) return;
       setAlerts((prev) => [alert, ...prev.filter((a) => a.id !== alert.id)]);
@@ -150,6 +184,10 @@ export default function Home() {
         isConnected={isConnected}
         activeVehiclesCount={trackedVehicles.size}
         totalTelemetryCount={totalTelemetryCount}
+        jwtToken={jwtToken}
+        operatorUser={operatorUser}
+        onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
       />
 
       {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}

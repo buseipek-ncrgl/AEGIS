@@ -1,0 +1,88 @@
+# ==============================================================================
+# AEGIS ENTERPRISE CLOUD-NATIVE PLATFORM
+# Kubernetes (K8s) Deployment & Service Manifest: Aegis Analytics (Spring Boot 3 / Java 21)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. DEPLOYMENT (Spring Boot Kafka Consumer Microservice)
+# ------------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-analytics-deployment
+  namespace: aegis-system
+  labels:
+    app.kubernetes.io/name: aegis-analytics
+    app.kubernetes.io/part-of: aegis-platform
+    app.kubernetes.io/component: analytics-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aegis-analytics
+  template:
+    metadata:
+      labels:
+        app: aegis-analytics
+    spec:
+      containers:
+        - name: aegis-analytics
+          image: aegis-analytics:v3.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+              name: http-analytics
+          
+          # Spring Boot Konfigürasyonları
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SERVER_PORT
+              value: "8081"
+
+          # Health check
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 5
+
+          resources:
+            requests:
+              memory: "384Mi"
+              cpu: "200m"
+            limits:
+              memory: "768Mi"
+              cpu: "600m"
+
+---
+
+# ------------------------------------------------------------------------------
+# 2. SERVICE
+# ------------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-analytics-service
+  namespace: aegis-system
+  labels:
+    app.kubernetes.io/name: aegis-analytics
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8081
+      targetPort: 8081
+      protocol: TCP
+      name: http
+  selector:
+    app: aegis-analytics

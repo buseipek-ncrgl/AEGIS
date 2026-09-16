@@ -13,6 +13,20 @@ export enum VehicleStatus {
   Emergency = 4
 }
 
+export enum AnomalyType {
+  None = 0,
+  GpsSpoofing = 1,
+  SuddenFreefall = 2,
+  ThermalRunaway = 3
+}
+
+export interface TelemetryAnomaly {
+  anomalyType: AnomalyType;
+  description: string;
+  confidenceScore: number;
+  detectedAt: string;
+}
+
 export interface Vehicle {
   id: string;
   name: string;
@@ -31,6 +45,7 @@ export interface TelemetryDto {
   batteryPercentage: number;
   temperature: number;
   timestamp: string;
+  anomalies?: TelemetryAnomaly[];
 }
 
 export interface TrackedVehicleState {

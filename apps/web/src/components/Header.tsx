@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield, Radio, Activity, Clock, Layers, Lock, Unlock, UserCheck } from "lucide-react";
+import { Shield, Radio, Activity, Clock, Layers, Lock, UserCheck, RadioTower } from "lucide-react";
 import AuthModal from "./AuthModal";
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
   operatorUser: string | null;
   onLoginSuccess: (token: string, username: string) => void;
   onLogout: () => void;
+  onOpenManualAlertModal: () => void;
 }
 
 export default function Header({
@@ -22,6 +23,7 @@ export default function Header({
   operatorUser,
   onLoginSuccess,
   onLogout,
+  onOpenManualAlertModal,
 }: HeaderProps) {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -61,6 +63,26 @@ export default function Header({
 
         {/* Orta / Sağ Durum Göstergeleri */}
         <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 sm:gap-3 w-full md:w-auto text-xs">
+          {/* Taktik Müdahale / Manuel Alarm Butonu (Sadece Operatör Giriş Yapmışsa Aktif) */}
+          {jwtToken ? (
+            <button
+              onClick={onOpenManualAlertModal}
+              className="flex items-center space-x-1.5 bg-rose-950/90 hover:bg-rose-900 border border-rose-700/80 px-2.5 py-1 sm:py-1.5 rounded-lg text-rose-300 transition-all shadow-[0_0_15px_rgba(244,63,94,0.3)] active:scale-95"
+              title="Taktik Alarm Fırlat (Operatör Yetkili)"
+            >
+              <RadioTower className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+              <span className="font-bold text-[11px] sm:text-xs">TAKİK ALARM</span>
+            </button>
+          ) : (
+            <div
+              className="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 opacity-60 px-2.5 py-1 sm:py-1.5 rounded-lg text-slate-500 cursor-not-allowed"
+              title="Taktik Alarm fırlatmak için Operatör olarak giriş yapın"
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <span className="font-semibold text-[11px] sm:text-xs">Taktik Alarm (Kilitli)</span>
+            </div>
+          )}
+
           {/* JWT Operatör Kimlik Butonu */}
           {jwtToken ? (
             <button
@@ -70,7 +92,7 @@ export default function Header({
             >
               <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span className="font-semibold text-[11px] sm:text-xs">
-                {operatorUser || "Operatör"} (JWT)
+                {operatorUser || "Operatör"} (Çıkış Yap)
               </span>
             </button>
           ) : (

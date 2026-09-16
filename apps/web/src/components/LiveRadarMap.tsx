@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { TrackedVehicleState, VehicleType } from "@/types/telemetry";
-import { MapPin, Compass, Navigation, Plane, Ambulance, Cpu } from "lucide-react";
+import { TrackedVehicleState, TelemetryDto } from "@/types/telemetry";
+import { MapPin, Navigation } from "lucide-react";
 
-// Leaflet GIS Haritasını SSR (Server Side Rendering) olmadan dinamik yükle
+// Leaflet GIS Haritasını SSR olmadan dinamik yükle
 const GisMap = dynamic(() => import("./GisMap"), {
   ssr: false,
   loading: () => (
@@ -19,12 +19,17 @@ interface LiveRadarMapProps {
   trackedVehicles: Map<string, TrackedVehicleState>;
   selectedVehicleId: string | null;
   onSelectVehicle: (id: string) => void;
+  playbackTelemetry?: TelemetryDto | null;
 }
 
-export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSelectVehicle }: LiveRadarMapProps) {
+export default function LiveRadarMap({
+  trackedVehicles,
+  selectedVehicleId,
+  onSelectVehicle,
+  playbackTelemetry,
+}: LiveRadarMapProps) {
   const [mapMode, setMapMode] = useState<"REAL_GIS" | "RADAR_GRID">("REAL_GIS");
 
-  // Taktik Radar Izgarası İnteraktif Sürükleme (Pan) ve Yakınlaştırma (Zoom) Durumu
   const [radarPan, setRadarPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [radarZoom, setRadarZoom] = useState<number>(1.0);
   const [isDraggingRadar, setIsDraggingRadar] = useState<boolean>(false);
@@ -32,8 +37,8 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
 
   const vehicleList = Array.from(trackedVehicles.values());
   const selectedVehicleState = selectedVehicleId ? trackedVehicles.get(selectedVehicleId) : null;
+  const activeTelemetry = playbackTelemetry || selectedVehicleState?.latestTelemetry;
 
-  // Fare Sürükleme İşleyicileri
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDraggingRadar(true);
     setDragStart({ x: e.clientX - radarPan.x, y: e.clientY - radarPan.y });
@@ -63,7 +68,9 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
         <div className="flex items-center space-x-2">
           <MapPin className="w-4 h-4 text-emerald-400 animate-bounce" />
           <span className="text-xs font-bold text-slate-200 tracking-wider uppercase">
-            {mapMode === "REAL_GIS" ? "Gerçek GIS Sokak & Arazi Haritası (OpenStreetMap / CartoDB)" : "Taktik Radar Izgara Ekranı (İnteraktif Sürüklenebilir)"}
+            {mapMode === "REAL_GIS"
+              ? "Gerçek GIS Sokak & Arazi Haritası (OpenStreetMap / Esri Dark)"
+              : "Taktik Radar Izgara Ekranı (İnteraktif Sürüklenebilir)"}
           </span>
         </div>
 
@@ -95,9 +102,9 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
             trackedVehicles={trackedVehicles}
             selectedVehicleId={selectedVehicleId}
             onSelectVehicle={onSelectVehicle}
+            playbackTelemetry={playbackTelemetry}
           />
         ) : (
-          /* İnteraktif Sürüklenebilir & Yakınlaştırılabilir Taktik Radar Izgarası */
           <div
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -108,32 +115,27 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
               isDraggingRadar ? "cursor-grabbing" : "cursor-grab"
             }`}
           >
-            {/* Taktik Radar Kontrol Butonları */}
             <div className="absolute top-3 right-3 z-30 bg-slate-900/90 backdrop-blur border border-slate-700 rounded-lg p-1 flex space-x-1 shadow-lg">
               <button
                 onClick={() => setRadarZoom((z) => Math.min(3.5, z + 0.2))}
                 className="px-2 py-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded"
-                title="Yakınlaştır (+)"
               >
                 ➕
               </button>
               <button
                 onClick={() => setRadarZoom((z) => Math.max(0.4, z - 0.2))}
                 className="px-2 py-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded"
-                title="Uzaklaştır (-)"
               >
                 ➖
               </button>
               <button
                 onClick={resetRadarView}
                 className="px-2 py-1 text-[10px] font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded"
-                title="Sıfırla ve Merkeze Dön"
               >
                 🎯 Sıfırla
               </button>
             </div>
 
-            {/* Sürüklenebilir Dönüştürücü Container */}
             <div
               style={{
                 transform: `translate(${radarPan.x}px, ${radarPan.y}px) scale(${radarZoom})`,
@@ -142,26 +144,22 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
               }}
               className="relative w-full h-full flex items-center justify-center"
             >
-              {/* Radar Halkaları ve Pusula Çizgileri */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25">
                 <div className="w-[600px] h-[600px] rounded-full border border-emerald-500/50"></div>
                 <div className="w-[450px] h-[450px] rounded-full border border-emerald-500/50 absolute"></div>
                 <div className="w-[300px] h-[300px] rounded-full border border-emerald-500/50 absolute"></div>
                 <div className="w-[150px] h-[150px] rounded-full border border-emerald-500/50 absolute"></div>
-                {/* Artı Göstergesi */}
                 <div className="w-full h-[1px] bg-emerald-500/30 absolute"></div>
                 <div className="h-full w-[1px] bg-emerald-500/30 absolute"></div>
               </div>
 
-              {/* Araç Radar İkonları */}
               {vehicleList.map((state) => {
-                const t = state.latestTelemetry;
+                const isSelected = state.vehicle.id === selectedVehicleId;
+                const t = isSelected && playbackTelemetry ? playbackTelemetry : state.latestTelemetry;
                 if (!t) return null;
 
-                // Ankara/İzmir temsili radar ofsetleri
                 const left = `${Math.max(10, Math.min(90, ((t.longitude - 27.0) / 6.0) * 100))}%`;
                 const top = `${Math.max(10, Math.min(90, 100 - ((t.latitude - 38.0) / 2.2) * 100))}%`;
-                const isSelected = state.vehicle.id === selectedVehicleId;
 
                 return (
                   <div
@@ -171,11 +169,13 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
                       onSelectVehicle(state.vehicle.id);
                     }}
                     style={{ left, top }}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 transition-all duration-300"
                   >
                     <div
                       className={`p-2 rounded-lg border backdrop-blur flex items-center space-x-2 transition ${
-                        isSelected ? "bg-emerald-950/90 border-emerald-400 scale-110 shadow-lg shadow-emerald-500/30" : "bg-slate-900/90 border-slate-700 hover:border-slate-500"
+                        isSelected
+                          ? "bg-emerald-950/90 border-emerald-400 scale-110 shadow-lg shadow-emerald-500/30"
+                          : "bg-slate-900/90 border-slate-700 hover:border-slate-500"
                       }`}
                     >
                       <Navigation className={`w-4 h-4 ${isSelected ? "text-emerald-300 animate-pulse" : "text-emerald-400"}`} />
@@ -190,10 +190,12 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
       </div>
 
       {/* Seçili Araç Detay Alt Paneli */}
-      {selectedVehicleState && selectedVehicleState.latestTelemetry && (
+      {selectedVehicleState && activeTelemetry && (
         <div className="bg-slate-900 border-t border-slate-800 px-6 py-2.5 flex items-center justify-between z-20">
           <div>
-            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Seçili Hedef:</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+              {playbackTelemetry ? "⏪ Uçuş Geçmişi Konumu:" : "Seçili Canlı Hedef:"}
+            </span>
             <h4 className="text-sm font-extrabold text-emerald-400">{selectedVehicleState.vehicle.name}</h4>
           </div>
 
@@ -201,21 +203,21 @@ export default function LiveRadarMap({ trackedVehicles, selectedVehicleId, onSel
             <div>
               <span className="text-slate-400 text-[10px] block">ENLEM / BOYLAM</span>
               <span className="text-slate-200 font-bold">
-                {selectedVehicleState.latestTelemetry.latitude.toFixed(4)}, {selectedVehicleState.latestTelemetry.longitude.toFixed(4)}
+                {activeTelemetry.latitude.toFixed(4)}, {activeTelemetry.longitude.toFixed(4)}
               </span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">İRTİFA</span>
-              <span className="text-slate-200 font-bold">{selectedVehicleState.latestTelemetry.altitude} m</span>
+              <span className="text-slate-200 font-bold">{activeTelemetry.altitude} m</span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">HIZ</span>
-              <span className="text-slate-200 font-bold">{selectedVehicleState.latestTelemetry.speed} km/h</span>
+              <span className="text-slate-200 font-bold">{activeTelemetry.speed} km/h</span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">BATARYA</span>
-              <span className={`font-bold ${selectedVehicleState.latestTelemetry.batteryPercentage < 20 ? "text-rose-400" : "text-emerald-400"}`}>
-                %{selectedVehicleState.latestTelemetry.batteryPercentage}
+              <span className={`font-bold ${activeTelemetry.batteryPercentage < 20 ? "text-rose-400" : "text-emerald-400"}`}>
+                %{activeTelemetry.batteryPercentage}
               </span>
             </div>
           </div>

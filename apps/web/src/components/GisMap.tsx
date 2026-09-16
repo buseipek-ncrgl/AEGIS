@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { TrackedVehicleState, VehicleType } from "@/types/telemetry";
+import { TrackedVehicleState, VehicleType, TelemetryDto } from "@/types/telemetry";
 
 // Custom Leaflet Icons for Drone, Ambulance, Helicopter
 const createCustomIcon = (type: VehicleType, isSelected: boolean) => {
@@ -54,19 +54,27 @@ interface GisMapProps {
   trackedVehicles: Map<string, TrackedVehicleState>;
   selectedVehicleId: string | null;
   onSelectVehicle: (id: string) => void;
+  playbackTelemetry?: TelemetryDto | null;
 }
 
 type TileSource = "ESRI_DARK" | "SATELLITE" | "OPENSTREETMAP";
 
-export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVehicle }: GisMapProps) {
+export default function GisMap({
+  trackedVehicles,
+  selectedVehicleId,
+  onSelectVehicle,
+  playbackTelemetry,
+}: GisMapProps) {
   const [tileSource, setTileSource] = useState<TileSource>("ESRI_DARK");
 
   const vehicleList = Array.from(trackedVehicles.values());
   const selectedState = selectedVehicleId ? trackedVehicles.get(selectedVehicleId) : null;
 
-  // Center on Ankara (default) or Selected Vehicle
-  const centerLat = selectedState?.latestTelemetry?.latitude ?? 39.9334;
-  const centerLng = selectedState?.latestTelemetry?.longitude ?? 32.8597;
+  // Center on Ankara (default) or Selected Vehicle / Playback Point
+  const activeLat =
+    playbackTelemetry?.latitude ?? selectedState?.latestTelemetry?.latitude ?? 39.9334;
+  const activeLng =
+    playbackTelemetry?.longitude ?? selectedState?.latestTelemetry?.longitude ?? 32.8597;
 
   const tileConfigs = {
     ESRI_DARK: {
@@ -87,7 +95,7 @@ export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVeh
 
   return (
     <div className="relative w-full h-full">
-      {/* Ücretsiz Katman Seçici (Layer Selector) */}
+      {/* Katman Seçici (Layer Selector) */}
       <div className="absolute top-3 right-3 z-[1000] bg-slate-900/90 backdrop-blur border border-slate-700/80 rounded-lg p-1 flex space-x-1 shadow-lg">
         <button
           onClick={() => setTileSource("ESRI_DARK")}
@@ -116,17 +124,14 @@ export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVeh
       </div>
 
       <MapContainer
-        center={[centerLat, centerLng]}
+        center={[activeLat, activeLng]}
         zoom={11}
         scrollWheelZoom={true}
         style={{ width: "100%", height: "100%", background: "#090d16" }}
       >
-        {/* Ücretsiz, API Key İstemeyen Harita Katmanı */}
         <TileLayer key={tileSource} attribution={currentTile.attribution} url={currentTile.url} maxZoom={18} />
 
-        {selectedState?.latestTelemetry && (
-          <MapRecenter lat={selectedState.latestTelemetry.latitude} lng={selectedState.latestTelemetry.longitude} />
-        )}
+        <MapRecenter lat={activeLat} lng={activeLng} />
 
         {/* Araç Rota İzi Çizimi (Neon Flight Path Trails) */}
         {vehicleList.map((state) => {
@@ -134,9 +139,9 @@ export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVeh
 
           const positions: [number, number][] = state.telemetryHistory.map((t) => [t.latitude, t.longitude]);
 
-          let pathColor = "#10b981"; // Emerald
-          if (state.vehicle.type === VehicleType.Ambulance) pathColor = "#f43f5e"; // Rose
-          else if (state.vehicle.type === VehicleType.Helicopter) pathColor = "#06b6d4"; // Cyan
+          let pathColor = "#10b981";
+          if (state.vehicle.type === VehicleType.Ambulance) pathColor = "#f43f5e";
+          else if (state.vehicle.type === VehicleType.Helicopter) pathColor = "#06b6d4";
 
           const isSelected = state.vehicle.id === selectedVehicleId;
 
@@ -156,10 +161,10 @@ export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVeh
 
         {/* Map Vehicle Markers */}
         {vehicleList.map((state) => {
-          const t = state.latestTelemetry;
+          const isSelected = state.vehicle.id === selectedVehicleId;
+          const t = isSelected && playbackTelemetry ? playbackTelemetry : state.latestTelemetry;
           if (!t) return null;
 
-          const isSelected = state.vehicle.id === selectedVehicleId;
           const icon = createCustomIcon(state.vehicle.type, isSelected);
 
           return (
@@ -179,6 +184,11 @@ export default function GisMap({ trackedVehicles, selectedVehicleId, onSelectVeh
                   <div>İrtifa: {t.altitude} m</div>
                   <div>Hız: {t.speed} km/h</div>
                   <div>Batarya: %{t.batteryPercentage}</div>
+                  {playbackTelemetry && isSelected && (
+                    <div className="mt-1 font-mono text-[10px] text-cyan-700 bg-cyan-100 p-1 rounded font-bold">
+                      ⏪ Uçuş Geçmişi Oynatılıyor
+                    </div>
+                  )}
                 </div>
               </Popup>
             </Marker>

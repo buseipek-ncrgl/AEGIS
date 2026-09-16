@@ -6,7 +6,10 @@ import LiveRadarMap from "@/components/LiveRadarMap";
 import VehicleList from "@/components/VehicleList";
 import TelemetryFeed from "@/components/TelemetryFeed";
 import AlertBanner from "@/components/AlertBanner";
+import ManualAlertModal from "@/components/ManualAlertModal";
+import RouteReplayPlayer from "@/components/RouteReplayPlayer";
 import { createSignalRConnection } from "@/lib/signalr";
+import { playTacticalSiren } from "@/lib/audioAlert";
 import { Vehicle, TelemetryDto, TrackedVehicleState } from "@/types/telemetry";
 import { AlertDto } from "@/types/alert";
 
@@ -23,6 +26,11 @@ export default function Home() {
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [operatorUser, setOperatorUser] = useState<string | null>(null);
 
+  // Modal, Replay & AI Anomaly Banner State
+  const [isManualAlertModalOpen, setIsManualAlertModalOpen] = useState<boolean>(false);
+  const [playbackTelemetry, setPlaybackTelemetry] = useState<TelemetryDto | null>(null);
+  const [latestAiAnomalyMessage, setLatestAiAnomalyMessage] = useState<string | null>(null);
+
   useEffect(() => {
     const savedToken = localStorage.getItem("aegis_jwt_token");
     const savedUser = localStorage.getItem("aegis_operator_user");
@@ -34,6 +42,7 @@ export default function Home() {
     setJwtToken(token);
     setOperatorUser(username);
     fetchActiveAlerts(token);
+    playTacticalSiren("ack");
   };
 
   const handleLogout = () => {
@@ -88,6 +97,7 @@ export default function Home() {
 
   const handleAcknowledgeAlert = async (id: string) => {
     setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, isAcknowledged: true } : a)));
+    playTacticalSiren("ack");
     try {
       const headers: Record<string, string> = {};
       if (jwtToken) {
@@ -126,7 +136,7 @@ export default function Home() {
         }
       });
 
-    // Connection Ack Handler (Browser konsol uyarısını önlemek için)
+    // Connection Ack Handler
     connection.on("ReceiveConnectionAck", (msg: string) => {
       if (!isMounted) return;
       console.log("SignalR Connection ACK:", msg);
@@ -135,6 +145,13 @@ export default function Home() {
     // Canlı Telemetri Paketi Düştüğünde
     connection.on("ReceiveTelemetry", (telemetry: TelemetryDto) => {
       if (!isMounted) return;
+
+      // AI Anomali tespiti varsa ekranda mor AI bildirimi fırlat ve ikaz sirenini çal
+      if (telemetry.anomalies && telemetry.anomalies.length > 0) {
+        const firstAnomaly = telemetry.anomalies[0];
+        setLatestAiAnomalyMessage(firstAnomaly.description);
+        playTacticalSiren("warning");
+      }
 
       setTrackedVehicles((prevMap) => {
         const newMap = new Map(prevMap);
@@ -167,6 +184,7 @@ export default function Home() {
     connection.on("ReceiveAlert", (alert: AlertDto) => {
       if (!isMounted) return;
       setAlerts((prev) => [alert, ...prev.filter((a) => a.id !== alert.id)]);
+      playTacticalSiren(alert.severity === 3 ? "critical" : "warning");
     });
 
     connection.onreconnecting(() => isMounted && setIsConnected(false));
@@ -181,7 +199,7 @@ export default function Home() {
     };
   }, []);
 
-  const totalTelemetryCount = telemetryLogs.length;
+  const selectedVehicleState = selectedVehicleId ? trackedVehicles.get(selectedVehicleId) || null : null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
@@ -189,17 +207,34 @@ export default function Home() {
       <Header
         isConnected={isConnected}
         activeVehiclesCount={trackedVehicles.size}
-        totalTelemetryCount={totalTelemetryCount}
+        totalTelemetryCount={telemetryLogs.length}
         jwtToken={jwtToken}
         operatorUser={operatorUser}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
+        onOpenManualAlertModal={() => setIsManualAlertModalOpen(true)}
       />
 
       {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}
       <main className="flex-1 p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-[1600px] w-full mx-auto">
-        {/* Canlı Taktik Alarm Paneli */}
-        <AlertBanner alerts={alerts} onAcknowledgeAlert={handleAcknowledgeAlert} />
+        {/* Canlı Taktik Alarm Paneli & AI Anomali İkaz Kartı */}
+        <AlertBanner
+          alerts={alerts}
+          onAcknowledgeAlert={handleAcknowledgeAlert}
+          latestAiAnomalyMessage={latestAiAnomalyMessage}
+        />
+
+        {/* Seçili Araç Uçuş Rota Geçmişi Oynatıcısı */}
+        {selectedVehicleState && (
+          <RouteReplayPlayer
+            selectedVehicleState={selectedVehicleState}
+            onClose={() => {
+              setSelectedVehicleId(null);
+              setPlaybackTelemetry(null);
+            }}
+            onPlaybackPointChange={(point) => setPlaybackTelemetry(point)}
+          />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Sol Kolon (2 Birim - Masaüstü): Radar Haritası & Telemetri Akışı */}
@@ -207,7 +242,11 @@ export default function Home() {
             <LiveRadarMap
               trackedVehicles={trackedVehicles}
               selectedVehicleId={selectedVehicleId}
-              onSelectVehicle={setSelectedVehicleId}
+              onSelectVehicle={(id) => {
+                setSelectedVehicleId(id);
+                setPlaybackTelemetry(null);
+              }}
+              playbackTelemetry={playbackTelemetry}
             />
 
             <TelemetryFeed telemetryLogs={telemetryLogs} />
@@ -218,11 +257,23 @@ export default function Home() {
             <VehicleList
               trackedVehicles={trackedVehicles}
               selectedVehicleId={selectedVehicleId}
-              onSelectVehicle={setSelectedVehicleId}
+              onSelectVehicle={(id) => {
+                setSelectedVehicleId(id);
+                setPlaybackTelemetry(null);
+              }}
             />
           </div>
         </div>
       </main>
+
+      {/* Manuel Alarm Fırlatma Modalı */}
+      <ManualAlertModal
+        isOpen={isManualAlertModalOpen}
+        onClose={() => setIsManualAlertModalOpen(false)}
+        jwtToken={jwtToken}
+        trackedVehicles={trackedVehicles}
+        onAlertSent={() => fetchActiveAlerts()}
+      />
     </div>
   );
 }

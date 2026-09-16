@@ -6,4 +6,5 @@ public interface IAlertService
 {
     Task<IReadOnlyList<AlertDto>> GetActiveAlertsAsync(CancellationToken cancellationToken = default);
     Task AcknowledgeAlertAsync(Guid alertId, CancellationToken cancellationToken = default);
+    Task<AlertDto> CreateManualAlertAsync(CreateManualAlertRequest request, CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,9 @@
+using Aegis.Api.Hubs;
 using Aegis.Application.Alerts.DTOs;
 using Aegis.Application.Alerts.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Aegis.Api.Controllers;
 
@@ -29,5 +31,17 @@ public class AlertsController(IAlertService alertService) : ControllerBase
         {
             return NotFound(new { Message = ex.Message });
         }
+    }
+
+    [HttpPost("manual")]
+    [Authorize(Roles = "Operator")]
+    public async Task<ActionResult<AlertDto>> CreateManualAlert(
+        [FromBody] CreateManualAlertRequest request,
+        [FromServices] IHubContext<TelemetryHub> hubContext,
+        CancellationToken cancellationToken)
+    {
+        var alert = await alertService.CreateManualAlertAsync(request, cancellationToken);
+        await hubContext.Clients.All.SendAsync("ReceiveAlert", alert, cancellationToken);
+        return CreatedAtAction(nameof(GetActiveAlerts), new { id = alert.Id }, alert);
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import LiveRadarMap from "@/components/LiveRadarMap";
 import VehicleList from "@/components/VehicleList";
@@ -27,6 +27,12 @@ export default function Home() {
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [operatorUser, setOperatorUser] = useState<string | null>(null);
   const [isGuestView, setIsGuestView] = useState<boolean>(false);
+
+  // Ref to track guest view status safely inside SignalR callbacks without re-triggering useEffect
+  const isGuestViewRef = useRef<boolean>(false);
+  useEffect(() => {
+    isGuestViewRef.current = isGuestView;
+  }, [isGuestView]);
 
   // Modal, Replay & AI Anomaly Banner State
   const [isManualAlertModalOpen, setIsManualAlertModalOpen] = useState<boolean>(false);
@@ -103,7 +109,7 @@ export default function Home() {
 
   const handleAcknowledgeAlert = async (id: string) => {
     setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, isAcknowledged: true } : a)));
-    playTacticalSiren("ack");
+    if (jwtToken || isGuestView) playTacticalSiren("ack");
     try {
       const headers: Record<string, string> = {};
       if (jwtToken) {
@@ -120,7 +126,7 @@ export default function Home() {
     fetchActiveAlerts();
   }, []);
 
-  // 2. SignalR Canlı Yayın Bağlantısını Kur ve Dinle
+  // 2. SignalR Canlı Yayın Bağlantısını Kur ve Dinle (Bağımlılık Dizisi Boyutu Sabit Kalır: [])
   useEffect(() => {
     let isMounted = true;
     const connection = createSignalRConnection();
@@ -155,7 +161,10 @@ export default function Home() {
       if (telemetry.anomalies && telemetry.anomalies.length > 0) {
         const firstAnomaly = telemetry.anomalies[0];
         setLatestAiAnomalyMessage(firstAnomaly.description);
-        playTacticalSiren("warning");
+        // Sadece Oturum Açıkken veya Misafir Ekranında Ses Çal
+        if (localStorage.getItem("aegis_jwt_token") || isGuestViewRef.current) {
+          playTacticalSiren("warning");
+        }
       }
 
       setTrackedVehicles((prevMap) => {
@@ -189,7 +198,10 @@ export default function Home() {
     connection.on("ReceiveAlert", (alert: AlertDto) => {
       if (!isMounted) return;
       setAlerts((prev) => [alert, ...prev.filter((a) => a.id !== alert.id)]);
-      playTacticalSiren(alert.severity === 3 ? "critical" : "warning");
+      // Sadece Oturum Açıkken veya Misafir Ekranında Siren Çal
+      if (localStorage.getItem("aegis_jwt_token") || isGuestViewRef.current) {
+        playTacticalSiren(alert.severity === 3 ? "critical" : "warning");
+      }
     });
 
     connection.onreconnecting(() => isMounted && setIsConnected(false));

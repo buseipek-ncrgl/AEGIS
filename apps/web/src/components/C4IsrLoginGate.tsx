@@ -43,6 +43,9 @@ export default function C4IsrLoginGate({ onLoginSuccess, onGuestAccess }: C4IsrL
     } finally {
       setLoading(false);
     }
+  };
+
+  return (
     <div className="min-h-screen bg-[#050913] text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden font-mono selection:bg-cyan-500 selection:text-black">
       {/* Taktik Izgara Arka Planı (Background Grid) */}
       <div className="absolute inset-0 bg-[radial-gradient(#06b6d4_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none"></div>

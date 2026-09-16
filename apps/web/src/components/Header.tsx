@@ -38,7 +38,6 @@ export default function Header({
 
   return (
     <>
-    <>
       <header className="c4isr-glass-header text-slate-100 px-4 sm:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 sticky top-0 z-50">
         {/* Sol Logo & Başlık */}
         <div className="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">

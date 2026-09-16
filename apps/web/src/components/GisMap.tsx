@@ -161,7 +161,6 @@ export default function GisMap({
           🗺️ VECTOR
         </button>
       </div>
-      </div>
 
       <MapContainer
         center={[activeLat, activeLng]}

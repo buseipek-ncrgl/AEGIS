@@ -28,8 +28,9 @@
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ System Architecture & Data Flow
 
+### 1. High-Level Architecture
 ```mermaid
 graph TD
     SIM["🐍 Python Telemetry Simulator\n(apps/simulator/main.py)"]
@@ -52,6 +53,33 @@ graph TD
     OTEL -->|Grafana Visuals| GRAFANA
     K8S -.->|Orchestrates| API
     K8S -.->|Orchestrates| JAVA
+```
+
+### 2. Real-Time Telemetry & Threat Sequence Flow
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Sim as 🐍 Python Simulator
+    participant API as ⚡ .NET 9 Aegis.Api
+    participant AI as 🤖 Haversine AI Engine
+    participant Redis as ⚡ Redis Cache
+    participant Hub as 📡 SignalR Hub
+    participant Web as 💻 Next.js C4ISR Web UI
+    participant Kafka as 🔄 Apache Kafka Bus
+    participant Java as ☕ Java 21 Analytics
+
+    Sim->>API: 1. HTTP POST /api/telemetry (GPS Lat/Lng, Alt, Speed)
+    API->>AI: 2. Evaluate Kinematic Anomalies (Haversine d, Δh/Δt)
+    alt Anomaly Detected (GPS Spoofing / Stall / Overheat)
+        AI-->>API: 3. Trigger Critical Threat Alert
+        API->>Hub: 4. Push Real-Time Emergency Siren & Banner
+        Hub-->>Web: 5. Display Neon Alert Banner & Play Synth Siren
+    end
+    API->>Redis: 6. Cache Latest Vehicle State (TTL 5m)
+    API->>Hub: 7. Push Live Telemetry Update
+    Hub-->>Web: 8. Update Radar Marker & Flight Trail
+    API->>Kafka: 9. Publish TelemetryCreatedEvent
+    Kafka-->>Java: 10. Consume Event & Run Deep Analytics
 ```
 
 ---
@@ -85,7 +113,12 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 - **⏯️ Interactive Flight History Replay Player:** Time-slider playback bar with 1x, 2x, 4x speed control that smoothly animates vehicle markers along historical flight points.
 - **📄 After-Action Report (AAR) Export:** 1-click CSV exporter for mission debriefing and telemetry audit trails.
 
-### 5. ☸️ Cloud-Native Infrastructure & Resilience
+### 5. 🔍 Live Asset Search, Filter & Role-Isolated Consoles
+- **Live Search & Filter:** Filter thousands of fleet tracks instantly by unit name, track ID, or vehicle type (`[ALL]`, `[DRONE]`, `[HELICOPTER]`, `[AMBULANCE]`).
+- **1-Click "PLAY ON MAP" Action:** Single click on any unit card in the fleet console smoothly transitions to the GIS map view and initiates real-time flight route playback.
+- **Dedicated C4ISR Workspaces:** Distinct tab isolation for Command Overview (Dashboard), Fullscreen Map, Asset Console, AI Anomaly Engine, and Mission Debriefing (Reports).
+
+### 6. ☸️ Cloud-Native Infrastructure & Resilience
 - **Kubernetes (K8s) & Helm v3.0.0:** Production deployment manifests ([`deployments/k8s/`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/deployments/k8s/)), ClusterIP services, and Horizontal Pod Autoscaler (HPA) scaling pods dynamically based on CPU (>70%) and RAM (>80%).
 - **Polly Resilience Pipelines:** Exponential backoff retries and circuit breakers preventing cascaded failure during Redis/Kafka container outages.
 - **Observability Stack:** OpenTelemetry metric instrumentation scraped by Prometheus (`http://localhost:9090`) and visualized via Grafana (`http://localhost:3001`).

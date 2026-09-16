@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.83.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.20" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Aegis.Infrastructure\Aegis.Infrastructure.csproj" />
     <ProjectReference Include="..\Aegis.Application\Aegis.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\telemetry.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

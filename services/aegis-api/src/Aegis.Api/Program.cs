@@ -26,8 +26,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// REST API Controller desteği ve OpenAPI/Swagger
+// REST API Controller desteği, gRPC ve OpenAPI/Swagger
 builder.Services.AddControllers();
+builder.Services.AddGrpc();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -45,12 +46,15 @@ app.MapGet("/", () => Results.Ok(new
 { 
     system = "AEGIS Command & Control API", 
     status = "Online", 
-    version = "v1.0",
-    endpoints = new[] { "/api/vehicles", "/api/telemetry", "/hubs/telemetry" }
+    version = "v2.0 (Distributed Architecture)",
+    endpoints = new[] { "/api/vehicles", "/api/telemetry", "/api/alerts", "/hubs/telemetry", "gRPC: TelemetryGrpc" }
 }));
 
 // REST Controller Endpoint Eşlemesi
 app.MapControllers();
+
+// gRPC Service Endpoint Eşlemesi
+app.MapGrpcService<TelemetryGrpcService>();
 
 // SignalR WebSocket Hub Endpoint Eşlemesi
 app.MapHub<TelemetryHub>("/hubs/telemetry");

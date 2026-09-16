@@ -84,6 +84,51 @@ sequenceDiagram
 
 ---
 
+## 💡 Real-World IoT & Edge Hardware Deployment (Gerçek Dünyada Nasıl Çalışır?)
+
+In a live production defense or emergency response deployment (such as a **Bayraktar TB2**, **STM KARGU-2 UAV**, or **AFAD Emergency Ambulance**), physical edge hardware is mounted inside the vehicle:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        REAL-WORLD TACTICAL VEHICLE EDGE HARDWARE                       │
+│                                                                                        │
+│   ┌───────────────────┐    GPS/NMEA Data   ┌──────────────────────────────────────┐    │
+│   │ 🛰️ NEO-M8N / GPS  ├───────────────────►│  🧠 STM32 / PX4 Autopilot / Pi CM4   │    │
+│   │    GNSS Antenna   │                    │     (Onboard Flight Controller)      │    │
+│   └───────────────────┘                    └──────────────────┬───────────────────┘    │
+│                                                               │ Encrypted Telemetry    │
+│                                                               ▼ (MAVLink / Protobuf)   │
+│   ┌───────────────────┐                    ┌──────────────────────────────────────┐    │
+│   │ 🔋 BMS & Thermal  ├───────────────────►│  📡 4G/5G LTE / SATCOM GPRS Modem    │    │
+│   │    Power Sensors  │  Battery & Temp    │     (Quectel / Sierra Wireless)      │    │
+│   └───────────────────┘                    └──────────────────┬───────────────────┘    │
+└───────────────────────────────────────────────────────────────┼────────────────────────┘
+                                                                │ Encrypted Payload
+                                                                │ (HTTPS / gRPC Stream)
+                                                                ▼
+                                            ┌──────────────────────────────────────┐
+                                            │  🛡️ AEGIS C4ISR COMMAND CENTER API   │
+                                            │   (.NET 9 Microservice - Port 5000)  │
+                                            └──────────────────────────────────────┘
+```
+
+### 🔹 Physical Hardware Layer (Fiziksel Donanım Katmanı)
+1. **🧠 Onboard IoT Flight Controller / Edge Computer:**
+   - Powered by an **STM32F4/F7 Microcontroller**, **PX4 Autopilot Board**, or **Raspberry Pi Compute Module 4 (CM4)** running lightweight C++/Python firmware.
+2. **🛰️ High-Precision GNSS Receiver:**
+   - Onboard U-Blox NEO-M8N / ZED-F9P GPS antennas fetch real-time latitude, longitude, altitude (MSL), and ground speed every **1–2 seconds**.
+3. **🔋 Battery Management System (BMS) & Thermal Sensors:**
+   - Measures cell voltage, state-of-charge percentage (%), and core motor temperature.
+4. **📡 Cellular 4G/5G & Satellite Datalink (SATCOM):**
+   - Transmits telemetry JSON / Protocol Buffer packets over encrypted 4G/5G GPRS modems or SATCOM datalinks to the AEGIS central server.
+
+---
+
+### 🔹 Digital Twin & Software Simulation (Yazılım Dijital İkizi)
+In this repository, [`apps/simulator/main.py`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/apps/simulator/main.py) serves as a **Software Digital Twin** of these physical **STM32 / PX4 Edge Hardware Boards**. It mathematically simulates real-world flight dynamics, battery drain, thermal heating, and satellite coordinates, transmitting live telemetry to the AEGIS .NET 9 API exactly as physical IoT hardware would in an operational mission.
+
+---
+
 ## ✨ Key Platform Capabilities
 
 ### 1. 🤖 Statistical AI Kinematic Anomaly Detector

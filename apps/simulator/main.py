@@ -37,16 +37,34 @@ def main():
     print("AEGIS GERCEK ZAMANLI TELEMETRI SIMULATORU BASLATILIYOR")
     print("=" * 60)
 
-    # 3 Farklı Sivil Araç Tanımlıyoruz (Ankara ve İzmir Koordinatları)
+    # Official STM & Turkish Defense Tactical Platform Fleet
     vehicles = [
         SimulatedVehicle(
             vehicle_id="",
-            name="ANKARA-İHA-01",
-            vehicle_type=1, # Drone
+            name="STM-KARGU-2",
+            vehicle_type=1, # Drone (Taktik Vurucu İHA)
             start_lat=39.9334,
             start_lng=32.8597,
             base_altitude=850.0,
             speed_kmh=110.0
+        ),
+        SimulatedVehicle(
+            vehicle_id="",
+            name="STM-TOGAN-2",
+            vehicle_type=1, # Drone (Otonom Keşif İHA)
+            start_lat=39.9520,
+            start_lng=32.8800,
+            base_altitude=920.0,
+            speed_kmh=130.0
+        ),
+        SimulatedVehicle(
+            vehicle_id="",
+            name="STM-ALPAGU-1",
+            vehicle_type=1, # Drone (Akıllı Dolanıcı Mühimmat)
+            start_lat=39.9100,
+            start_lng=32.8300,
+            base_altitude=780.0,
+            speed_kmh=150.0
         ),
         SimulatedVehicle(
             vehicle_id="",
@@ -59,7 +77,7 @@ def main():
         ),
         SimulatedVehicle(
             vehicle_id="",
-            name="İZMİR-HELS-35",
+            name="TSK-HELS-35",
             vehicle_type=5, # Helicopter
             start_lat=38.4237,
             start_lng=27.1428,

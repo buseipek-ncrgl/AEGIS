@@ -63,7 +63,7 @@ export default function RouteReplayPlayer({
         <div className="flex items-center space-x-2">
           <Navigation className="w-4 h-4 text-cyan-400 animate-spin" />
           <h4 className="text-xs font-black text-cyan-300 tracking-wider">
-            FLIGHT REPLAY PLAYER: <span className="text-slate-100">{selectedVehicleState.vehicle.name}</span>
+            UÇUŞ ROTA GEÇMİŞİ VE OYNATICI: <span className="text-slate-100">{selectedVehicleState.vehicle.name}</span>
           </h4>
         </div>
         <button
@@ -78,7 +78,7 @@ export default function RouteReplayPlayer({
         {/* Zaman Çubuğu (Slider) */}
         <div className="flex items-center space-x-3 text-xs">
           <span className="font-mono text-[10px] text-slate-400 shrink-0 font-bold">
-            {currentIndex + 1} / {sortedHistory.length} PKTS
+            {currentIndex + 1} / {sortedHistory.length} PAKET
           </span>
           <input
             type="range"
@@ -101,7 +101,7 @@ export default function RouteReplayPlayer({
               className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1 rounded-lg flex items-center space-x-1.5 font-extrabold transition shadow-[0_0_12px_rgba(6,182,212,0.3)] cursor-pointer"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-              <span>{isPlaying ? "PAUSE" : "PLAY"}</span>
+              <span>{isPlaying ? "DURDUR" : "OYNAT"}</span>
             </button>
 
             <button
@@ -139,8 +139,8 @@ export default function RouteReplayPlayer({
           {/* Anlık İrtifa & Hız Detayı */}
           {currentPoint && (
             <div className="hidden sm:flex items-center space-x-3 text-[11px] font-mono text-slate-300">
-              <span>ALT: <strong className="text-emerald-400 font-bold">{currentPoint.altitude}m</strong></span>
-              <span>SPD: <strong className="text-amber-400 font-bold">{currentPoint.speed}km/h</strong></span>
+              <span>İRTİFA: <strong className="text-emerald-400 font-bold">{currentPoint.altitude}m</strong></span>
+              <span>HIZ: <strong className="text-amber-400 font-bold">{currentPoint.speed}km/h</strong></span>
             </div>
           )}
         </div>

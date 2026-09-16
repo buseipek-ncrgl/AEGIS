@@ -31,18 +31,18 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
         <div className="flex items-center space-x-2">
           <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
           <h3 className="text-xs font-black text-cyan-300 tracking-widest uppercase">
-            ACTIVE FLEET TRACKS ({vehicleList.length})
+            AKTİF TAKTİK FİLO İZLERİ ({vehicleList.length})
           </h3>
         </div>
         <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded">
-          LIVE RADAR
+          CANLI RADAR
         </span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
         {vehicleList.length === 0 ? (
           <div className="text-center py-16 text-slate-500 text-xs font-mono">
-            NO ACTIVE RADAR TRACKS.<br />Start Python Simulator to ingest telemetry.
+            AKTİF RADAR İZİ BULUNAMADI.<br />Telemetri aktarımı için Python Simülatörünü başlatın.
           </div>
         ) : (
           vehicleList.map((state) => {
@@ -72,10 +72,10 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
                 {t ? (
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400 bg-[#040710] p-2 rounded-lg border border-slate-800/80">
-                      <div>LAT: <span className="text-cyan-300 font-bold">{t.latitude.toFixed(4)}</span></div>
-                      <div>LON: <span className="text-cyan-300 font-bold">{t.longitude.toFixed(4)}</span></div>
-                      <div>ALT: <span className="text-emerald-400 font-bold">{t.altitude} m</span></div>
-                      <div>SPD: <span className="text-amber-400 font-bold">{t.speed} km/h</span></div>
+                      <div>ENLEM: <span className="text-cyan-300 font-bold">{t.latitude.toFixed(4)}</span></div>
+                      <div>BOYLAM: <span className="text-cyan-300 font-bold">{t.longitude.toFixed(4)}</span></div>
+                      <div>İRTİFA: <span className="text-emerald-400 font-bold">{t.altitude} m</span></div>
+                      <div>HIZ: <span className="text-amber-400 font-bold">{t.speed} km/h</span></div>
                     </div>
 
                     {/* Batarya Çubuğu */}
@@ -95,7 +95,7 @@ export default function VehicleList({ trackedVehicles, selectedVehicleId, onSele
                     </div>
                   </div>
                 ) : (
-                  <div className="text-[10px] text-slate-500 font-mono">Awaiting telemetry telemetry packets...</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Telemetri paketleri bekleniyor...</div>
                 )}
               </div>
             );

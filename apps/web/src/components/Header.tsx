@@ -48,15 +48,15 @@ export default function Header({
             <div>
               <div className="flex items-center space-x-2">
                 <h1 className="text-base sm:text-xl font-black tracking-widest bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-300 bg-clip-text text-transparent uppercase drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
-                  AEGIS C4ISR COMMAND CENTER
+                  AEGIS TAKTİK KOMUTA MERKEZİ
                 </h1>
                 <span className="text-[9px] sm:text-[10px] uppercase font-mono font-bold tracking-widest bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-                  DEFENSE v3.0
+                  SAVUNMA v3.0
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-slate-400 font-mono hidden sm:flex items-center space-x-2">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>REAL-TIME AIR DEFENSE & KINEMATIC ANOMALY DETECTION PLATFORM</span>
+                <span>CANLI HAVA SAVUNMA VE KİNEMATİK ANOMALİ TESPİT PLATFORMU</span>
               </p>
             </div>
           </div>
@@ -68,11 +68,11 @@ export default function Header({
           {jwtToken ? (
             <button
               onClick={onOpenManualAlertModal}
-              className="flex items-center space-x-1.5 bg-rose-950/90 hover:bg-rose-900 border border-rose-500/60 px-3 py-1.5 rounded-lg text-rose-300 transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] active:scale-95 animate-pulse"
+              className="flex items-center space-x-1.5 bg-rose-950/90 hover:bg-rose-900 border border-rose-500/60 px-3 py-1.5 rounded-lg text-rose-300 transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] active:scale-95 animate-pulse cursor-pointer"
               title="Taktik Alarm Fırlat (Operatör Yetkili)"
             >
               <RadioTower className="w-4 h-4 text-rose-400" />
-              <span className="font-extrabold text-[11px] sm:text-xs tracking-wider">TAKTIK ALARM FIRLAT</span>
+              <span className="font-extrabold text-[11px] sm:text-xs tracking-wider">TAKİK ALARM FIRLAT</span>
             </button>
           ) : (
             <div
@@ -88,18 +88,18 @@ export default function Header({
           {jwtToken ? (
             <button
               onClick={onLogout}
-              className="flex items-center space-x-1.5 bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 px-3 py-1.5 rounded-lg text-emerald-300 transition-colors shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+              className="flex items-center space-x-1.5 bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 px-3 py-1.5 rounded-lg text-emerald-300 transition-colors shadow-[0_0_12px_rgba(16,185,129,0.25)] cursor-pointer"
               title="Oturumu Kapat"
             >
               <UserCheck className="w-4 h-4 text-emerald-400" />
               <span className="font-bold text-[11px] sm:text-xs">
-                {operatorUser || "Operatör"} (Çıkış)
+                {operatorUser || "Operatör"} (Çıkış Yap)
               </span>
             </button>
           ) : (
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="flex items-center space-x-1.5 bg-amber-950/80 hover:bg-amber-900/90 border border-amber-500/60 px-3 py-1.5 rounded-lg text-amber-300 transition-colors shadow-[0_0_12px_rgba(245,158,11,0.3)] animate-pulse"
+              className="flex items-center space-x-1.5 bg-amber-950/80 hover:bg-amber-900/90 border border-amber-500/60 px-3 py-1.5 rounded-lg text-amber-300 transition-colors shadow-[0_0_12px_rgba(245,158,11,0.3)] animate-pulse cursor-pointer"
             >
               <Lock className="w-3.5 h-3.5 text-amber-400" />
               <span className="font-bold text-[11px] sm:text-xs">OPERATÖR GİRİŞİ (JWT)</span>
@@ -111,14 +111,14 @@ export default function Header({
             <Radio className={`w-3.5 h-3.5 ${isConnected ? "text-emerald-400 animate-pulse" : "text-amber-500"}`} />
             <span className="text-slate-400 hidden sm:inline">SignalR:</span>
             <span className={`font-bold text-[11px] sm:text-xs ${isConnected ? "text-emerald-400" : "text-amber-500"}`}>
-              {isConnected ? "ONLINE" : "CONNECTING..."}
+              {isConnected ? "CANLI" : "BAĞLANIYOR..."}
             </span>
           </div>
 
           {/* Aktif Araç Sayısı */}
           <div className="flex items-center space-x-1.5 bg-slate-900/90 border border-slate-700/60 px-2.5 py-1.5 rounded-lg">
             <Layers className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-400 text-[11px] sm:text-xs">Ünitelere:</span>
+            <span className="text-slate-400 text-[11px] sm:text-xs">Üniteler:</span>
             <span className="font-bold text-cyan-400 text-[11px] sm:text-xs">{activeVehiclesCount}</span>
           </div>
 

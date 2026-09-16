@@ -26,10 +26,10 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-black uppercase tracking-widest text-purple-300">
-                  🤖 KINEMATIC AI ANOMALY ALERT
+                  🤖 KİNEMATİK AI ANOMALİ ALARMI
                 </span>
                 <span className="text-[10px] font-mono bg-purple-900/90 border border-purple-600 px-2 py-0.5 rounded text-purple-200 font-bold">
-                  HAVERSINE EW ENGINE
+                  HAVERSINE EW MOTORU
                 </span>
               </div>
               <p className="text-xs font-bold mt-0.5 text-purple-100">{latestAiAnomalyMessage}</p>
@@ -69,7 +69,7 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                    <span>{isCritical ? "🚨 CRITICAL TACTICAL ALARM" : "⚠️ WARNING ALERT"}</span>
+                    <span>{isCritical ? "🚨 KRİTİK TAKTİK ALARM" : "⚠️ UYARI BİLDİRİMİ"}</span>
                     {alert.vehicleName && alert.vehicleName !== "Bilinmeyen Araç / Taktik Komuta" && (
                       <span className="bg-rose-900/90 text-rose-200 border border-rose-500/60 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.3)]">
                         <Target className="w-3 h-3 text-rose-300 animate-spin" /> {alert.vehicleName}
@@ -93,7 +93,7 @@ export default function AlertBanner({ alerts, onAcknowledgeAlert, latestAiAnomal
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>ACKNOWLEDGE</span>
+              <span>ONAYLA (ANLAŞILDI)</span>
             </button>
           </div>
         );

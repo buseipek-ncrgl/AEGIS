@@ -62,35 +62,39 @@ export default function LiveRadarMap({
   };
 
   return (
-    <div className="relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl h-[550px] flex flex-col select-none">
+    <div className="relative c4isr-glass-panel border border-cyan-500/40 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.2)] h-[560px] flex flex-col select-none font-mono">
       {/* Harita Üst Kontrol Barı */}
-      <div className="bg-slate-900/90 backdrop-blur px-4 py-2 border-b border-slate-800 flex items-center justify-between z-20">
+      <div className="bg-[#090e1a]/95 backdrop-blur-md px-4 py-3 border-b border-cyan-500/30 flex items-center justify-between z-20">
         <div className="flex items-center space-x-2">
-          <MapPin className="w-4 h-4 text-emerald-400 animate-bounce" />
-          <span className="text-xs font-bold text-slate-200 tracking-wider uppercase">
+          <MapPin className="w-4 h-4 text-cyan-400 animate-bounce" />
+          <span className="text-xs font-black text-cyan-300 tracking-widest uppercase">
             {mapMode === "REAL_GIS"
-              ? "Gerçek GIS Sokak & Arazi Haritası (OpenStreetMap / Esri Dark)"
-              : "Taktik Radar Izgara Ekranı (İnteraktif Sürüklenebilir)"}
+              ? "CANLI GIS HAVA SAVUNMA VE HARİTA RADARI (OPENSTREETMAP / ESRI DARK)"
+              : "İNTERAKTİF VEKTÖR TAKTİK RADAR IZGARASI"}
           </span>
         </div>
 
         {/* Görünüm Modu Değiştirme Butonları */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 font-mono">
           <button
             onClick={() => setMapMode("REAL_GIS")}
-            className={`px-3 py-1 text-[11px] font-bold rounded transition flex items-center gap-1 ${
-              mapMode === "REAL_GIS" ? "bg-emerald-600 text-white shadow-lg" : "bg-slate-800 text-slate-400 hover:text-white"
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-xl transition-all cursor-pointer ${
+              mapMode === "REAL_GIS"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
             }`}
           >
-            🗺️ Gerçek GIS Haritası
+            🗺️ GERÇEK GIS HARİTASI
           </button>
           <button
             onClick={() => setMapMode("RADAR_GRID")}
-            className={`px-3 py-1 text-[11px] font-bold rounded transition flex items-center gap-1 ${
-              mapMode === "RADAR_GRID" ? "bg-emerald-600 text-white shadow-lg" : "bg-slate-800 text-slate-400 hover:text-white"
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-xl transition-all cursor-pointer ${
+              mapMode === "RADAR_GRID"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
             }`}
           >
-            📡 Taktik Radar Izgarası
+            📡 TAKTİK RADAR IZGARASI
           </button>
         </div>
       </div>
@@ -111,28 +115,28 @@ export default function LiveRadarMap({
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onWheel={handleWheel}
-            className={`relative w-full h-full bg-[radial-gradient(#064e3b_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden ${
+            className={`relative w-full h-full bg-[#040814] bg-[radial-gradient(#06b6d4_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden ${
               isDraggingRadar ? "cursor-grabbing" : "cursor-grab"
             }`}
           >
-            <div className="absolute top-3 right-3 z-30 bg-slate-900/90 backdrop-blur border border-slate-700 rounded-lg p-1 flex space-x-1 shadow-lg">
+            <div className="absolute top-4 right-4 z-30 bg-[#090e1a]/90 backdrop-blur border border-cyan-500/40 rounded-xl p-1 flex space-x-1 shadow-lg font-mono">
               <button
                 onClick={() => setRadarZoom((z) => Math.min(3.5, z + 0.2))}
-                className="px-2 py-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded"
+                className="px-2.5 py-1 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-cyan-300 rounded-lg cursor-pointer"
               >
                 ➕
               </button>
               <button
                 onClick={() => setRadarZoom((z) => Math.max(0.4, z - 0.2))}
-                className="px-2 py-1 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded"
+                className="px-2.5 py-1 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-cyan-300 rounded-lg cursor-pointer"
               >
                 ➖
               </button>
               <button
                 onClick={resetRadarView}
-                className="px-2 py-1 text-[10px] font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded"
+                className="px-2.5 py-1 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-slate-950 rounded-lg cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.3)]"
               >
-                🎯 Sıfırla
+                🎯 RESET
               </button>
             </div>
 
@@ -144,13 +148,15 @@ export default function LiveRadarMap({
               }}
               className="relative w-full h-full flex items-center justify-center"
             >
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25">
-                <div className="w-[600px] h-[600px] rounded-full border border-emerald-500/50"></div>
-                <div className="w-[450px] h-[450px] rounded-full border border-emerald-500/50 absolute"></div>
-                <div className="w-[300px] h-[300px] rounded-full border border-emerald-500/50 absolute"></div>
-                <div className="w-[150px] h-[150px] rounded-full border border-emerald-500/50 absolute"></div>
-                <div className="w-full h-[1px] bg-emerald-500/30 absolute"></div>
-                <div className="h-full w-[1px] bg-emerald-500/30 absolute"></div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
+                <div className="w-[650px] h-[650px] rounded-full border border-cyan-500/40 animate-radar-sweep">
+                  <div className="w-1/2 h-1/2 bg-gradient-to-br from-cyan-500/20 to-transparent rounded-tl-full origin-bottom-right"></div>
+                </div>
+                <div className="w-[450px] h-[450px] rounded-full border border-cyan-500/40 absolute"></div>
+                <div className="w-[300px] h-[300px] rounded-full border border-cyan-500/40 absolute"></div>
+                <div className="w-[150px] h-[150px] rounded-full border border-cyan-500/40 absolute"></div>
+                <div className="w-full h-[1px] bg-cyan-500/30 absolute"></div>
+                <div className="h-full w-[1px] bg-cyan-500/30 absolute"></div>
               </div>
 
               {vehicleList.map((state) => {
@@ -172,14 +178,14 @@ export default function LiveRadarMap({
                     className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 transition-all duration-300"
                   >
                     <div
-                      className={`p-2 rounded-lg border backdrop-blur flex items-center space-x-2 transition ${
+                      className={`p-2.5 rounded-xl border backdrop-blur-md flex items-center space-x-2 transition ${
                         isSelected
-                          ? "bg-emerald-950/90 border-emerald-400 scale-110 shadow-lg shadow-emerald-500/30"
-                          : "bg-slate-900/90 border-slate-700 hover:border-slate-500"
+                          ? "bg-cyan-950/95 border-cyan-400 scale-110 shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+                          : "bg-[#090e1a]/90 border-slate-800 hover:border-cyan-500/50"
                       }`}
                     >
-                      <Navigation className={`w-4 h-4 ${isSelected ? "text-emerald-300 animate-pulse" : "text-emerald-400"}`} />
-                      <span className="text-[11px] font-bold text-slate-100">{state.vehicle.name}</span>
+                      <Navigation className={`w-4 h-4 ${isSelected ? "text-cyan-300 animate-pulse" : "text-emerald-400"}`} />
+                      <span className="text-[11px] font-extrabold text-slate-100 tracking-wider">{state.vehicle.name}</span>
                     </div>
                   </div>
                 );
@@ -191,32 +197,32 @@ export default function LiveRadarMap({
 
       {/* Seçili Araç Detay Alt Paneli */}
       {selectedVehicleState && activeTelemetry && (
-        <div className="bg-slate-900 border-t border-slate-800 px-6 py-2.5 flex items-center justify-between z-20">
+        <div className="bg-[#090e1a]/95 border-t border-cyan-500/30 px-6 py-2.5 flex items-center justify-between z-20 font-mono">
           <div>
-            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-              {playbackTelemetry ? "⏪ Uçuş Geçmişi Konumu:" : "Seçili Canlı Hedef:"}
+            <span className="text-[10px] text-cyan-400 uppercase font-bold tracking-widest block">
+              {playbackTelemetry ? "⏪ UÇUŞ GEÇMİŞİ HEDEFİ:" : "CANLI HEDEF KİLİTLENMESİ:"}
             </span>
-            <h4 className="text-sm font-extrabold text-emerald-400">{selectedVehicleState.vehicle.name}</h4>
+            <h4 className="text-sm font-black text-cyan-300 tracking-wider">{selectedVehicleState.vehicle.name}</h4>
           </div>
 
           <div className="flex items-center space-x-6 text-xs font-mono">
             <div>
               <span className="text-slate-400 text-[10px] block">ENLEM / BOYLAM</span>
-              <span className="text-slate-200 font-bold">
+              <span className="text-cyan-300 font-bold">
                 {activeTelemetry.latitude.toFixed(4)}, {activeTelemetry.longitude.toFixed(4)}
               </span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">İRTİFA</span>
-              <span className="text-slate-200 font-bold">{activeTelemetry.altitude} m</span>
+              <span className="text-emerald-400 font-bold">{activeTelemetry.altitude} m</span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">HIZ</span>
-              <span className="text-slate-200 font-bold">{activeTelemetry.speed} km/h</span>
+              <span className="text-amber-400 font-bold">{activeTelemetry.speed} km/h</span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] block">BATARYA</span>
-              <span className={`font-bold ${activeTelemetry.batteryPercentage < 20 ? "text-rose-400" : "text-emerald-400"}`}>
+              <span className={`font-bold ${activeTelemetry.batteryPercentage < 20 ? "text-rose-400 animate-pulse" : "text-cyan-300"}`}>
                 %{activeTelemetry.batteryPercentage}
               </span>
             </div>

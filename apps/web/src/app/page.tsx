@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 import LiveRadarMap from "@/components/LiveRadarMap";
 import VehicleList from "@/components/VehicleList";
 import TelemetryFeed from "@/components/TelemetryFeed";
@@ -17,6 +18,7 @@ import { AlertDto } from "@/types/alert";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [trackedVehicles, setTrackedVehicles] = useState<Map<string, TrackedVehicleState>>(new Map());
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
@@ -229,69 +231,74 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050913] text-slate-100 flex flex-col font-mono selection:bg-cyan-500 selection:text-black animate-in fade-in duration-300">
-      {/* Üst Bar */}
-      <Header
-        isConnected={isConnected}
-        activeVehiclesCount={trackedVehicles.size}
-        totalTelemetryCount={telemetryLogs.length}
-        jwtToken={jwtToken}
-        operatorUser={isGuestView ? "Misafir" : operatorUser}
-        onLoginSuccess={handleLoginSuccess}
-        onLogout={handleLogout}
-        onOpenManualAlertModal={() => setIsManualAlertModalOpen(true)}
-      />
+    <div className="min-h-screen bg-[#050913] text-slate-100 flex font-mono selection:bg-cyan-500 selection:text-black animate-in fade-in duration-300">
+      {/* Sol Dikey C4ISR Navigasyon Barı */}
+      <Sidebar activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab)} />
 
-      {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}
-      <main className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-5 max-w-[1800px] w-full mx-auto">
-        {/* Canlı Taktik Alarm Paneli & AI Anomali İkaz Kartı */}
-        <AlertBanner
-          alerts={alerts}
-          onAcknowledgeAlert={handleAcknowledgeAlert}
-          latestAiAnomalyMessage={latestAiAnomalyMessage}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Üst Bar */}
+        <Header
+          isConnected={isConnected}
+          activeVehiclesCount={trackedVehicles.size}
+          totalTelemetryCount={telemetryLogs.length}
+          jwtToken={jwtToken}
+          operatorUser={isGuestView ? "Misafir" : operatorUser}
+          onLoginSuccess={handleLoginSuccess}
+          onLogout={handleLogout}
+          onOpenManualAlertModal={() => setIsManualAlertModalOpen(true)}
         />
 
-        {/* Seçili Araç Uçuş Rota Geçmişi Oynatıcısı */}
-        {selectedVehicleState && (
-          <RouteReplayPlayer
-            selectedVehicleState={selectedVehicleState}
-            onClose={() => {
-              setSelectedVehicleId(null);
-              setPlaybackTelemetry(null);
-            }}
-            onPlaybackPointChange={(point) => setPlaybackTelemetry(point)}
+        {/* Ana Operasyon Ekranı (Mobil, Tablet & Masaüstü Uyumlu Grid) */}
+        <main className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-5 max-w-[1800px] w-full mx-auto overflow-y-auto">
+          {/* Canlı Taktik Alarm Paneli & AI Anomali İkaz Kartı */}
+          <AlertBanner
+            alerts={alerts}
+            onAcknowledgeAlert={handleAcknowledgeAlert}
+            latestAiAnomalyMessage={latestAiAnomalyMessage}
           />
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-          {/* Sol Kolon (2 Birim - Masaüstü): Radar Haritası & Telemetri Akışı */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-5">
-            <LiveRadarMap
-              trackedVehicles={trackedVehicles}
-              selectedVehicleId={selectedVehicleId}
-              onSelectVehicle={(id) => {
-                setSelectedVehicleId(id);
+          {/* Seçili Araç Uçuş Rota Geçmişi Oynatıcısı */}
+          {selectedVehicleState && (
+            <RouteReplayPlayer
+              selectedVehicleState={selectedVehicleState}
+              onClose={() => {
+                setSelectedVehicleId(null);
                 setPlaybackTelemetry(null);
               }}
-              playbackTelemetry={playbackTelemetry}
+              onPlaybackPointChange={(point) => setPlaybackTelemetry(point)}
             />
+          )}
 
-            <TelemetryFeed telemetryLogs={telemetryLogs} />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+            {/* Sol Kolon (2 Birim - Masaüstü): Radar Haritası & Telemetri Akışı */}
+            <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+              <LiveRadarMap
+                trackedVehicles={trackedVehicles}
+                selectedVehicleId={selectedVehicleId}
+                onSelectVehicle={(id) => {
+                  setSelectedVehicleId(id);
+                  setPlaybackTelemetry(null);
+                }}
+                playbackTelemetry={playbackTelemetry}
+              />
 
-          {/* Sağ Kolon (1 Birim - Masaüstü / Mobil Altında): Aktif Araç Filosu */}
-          <div className="lg:col-span-1">
-            <VehicleList
-              trackedVehicles={trackedVehicles}
-              selectedVehicleId={selectedVehicleId}
-              onSelectVehicle={(id) => {
-                setSelectedVehicleId(id);
-                setPlaybackTelemetry(null);
-              }}
-            />
+              <TelemetryFeed telemetryLogs={telemetryLogs} />
+            </div>
+
+            {/* Sağ Kolon (1 Birim - Masaüstü / Mobil Altında): Aktif Araç Filosu */}
+            <div className="lg:col-span-1">
+              <VehicleList
+                trackedVehicles={trackedVehicles}
+                selectedVehicleId={selectedVehicleId}
+                onSelectVehicle={(id) => {
+                  setSelectedVehicleId(id);
+                  setPlaybackTelemetry(null);
+                }}
+              />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       {/* Manuel Alarm Fırlatma Modalı */}
       <ManualAlertModal

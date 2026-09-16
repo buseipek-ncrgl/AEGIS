@@ -19,5 +19,6 @@ public record CreateTelemetryRequest(
     double Altitude,
     double Speed,
     double BatteryPercentage,
-    double Temperature
+    double Temperature,
+    DateTimeOffset? Timestamp = null
 );

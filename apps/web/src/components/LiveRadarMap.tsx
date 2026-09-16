@@ -136,7 +136,7 @@ export default function LiveRadarMap({
                 onClick={resetRadarView}
                 className="px-2.5 py-1 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-slate-950 rounded-lg cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.3)]"
               >
-                🎯 RESET
+                🎯 RADARI SIFIRLA
               </button>
             </div>
 

@@ -138,7 +138,7 @@ export default function GisMap({
               : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🌑 DARK GIS
+          🌑 KOYU RADAR
         </button>
         <button
           onClick={() => setTileSource("SATELLITE")}
@@ -148,7 +148,7 @@ export default function GisMap({
               : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🛰️ SATELLITE
+          🛰️ CANLI UYDU
         </button>
         <button
           onClick={() => setTileSource("OPENSTREETMAP")}
@@ -158,7 +158,7 @@ export default function GisMap({
               : "text-slate-300 hover:text-cyan-300"
           }`}
         >
-          🗺️ VECTOR
+          🗺️ VEKTÖR HARİTA
         </button>
       </div>
 

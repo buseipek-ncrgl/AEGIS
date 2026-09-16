@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<ITelemetryService, TelemetryService>();
         services.AddSingleton<IAlertEngine, AlertEngine>();
         services.AddScoped<IAlertService, AlertService>();
+        services.AddSingleton<ITelemetryAnomalyDetector, StatisticalAnomalyDetector>();
 
         return services;
     }

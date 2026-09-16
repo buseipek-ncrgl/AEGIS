@@ -16,12 +16,20 @@ public class TelemetryService(
     IAlertRepository? alertRepository = null,
     ITelemetryBroadcastService? broadcastService = null,
     IKafkaProducerService? kafkaProducer = null,
-    ICacheService? cacheService = null) : ITelemetryService
+    ICacheService? cacheService = null,
+    ITelemetryAnomalyDetector? anomalyDetector = null) : ITelemetryService
 {
     public async Task<TelemetryDto> RecordTelemetryAsync(CreateTelemetryRequest request, CancellationToken cancellationToken = default)
     {
         var vehicle = await vehicleRepository.GetByIdAsync(request.VehicleId, cancellationToken)
             ?? throw new KeyNotFoundException($"Id'si '{request.VehicleId}' olan araç bulunamadı.");
+
+        // Anomali tespiti için bir önceki telemetriyi çek
+        Domain.Entities.Telemetry? previousTelemetry = null;
+        if (anomalyDetector is not null)
+        {
+            previousTelemetry = await telemetryRepository.GetLatestByVehicleIdAsync(request.VehicleId, cancellationToken);
+        }
 
         var location = new Location(request.Latitude, request.Longitude);
         var timestamp = DateTimeOffset.UtcNow;
@@ -45,6 +53,41 @@ public class TelemetryService(
         await telemetryRepository.AddAsync(telemetry, cancellationToken);
 
         var dto = MapToDto(telemetry);
+
+        // Yapay Zeka & İstatistiksel Anomali Tespiti
+        if (anomalyDetector is not null && previousTelemetry is not null)
+        {
+            var anomalies = anomalyDetector.DetectAnomalies(vehicle, telemetry, previousTelemetry);
+            foreach (var anomaly in anomalies)
+            {
+                if (alertRepository is not null)
+                {
+                    var anomalyAlert = new Alert(
+                        Guid.NewGuid(),
+                        vehicle.Id,
+                        Domain.Enums.AlertSeverity.Critical,
+                        Domain.Enums.AlertType.GeofenceViolation,
+                        anomaly.Description
+                    );
+                    await alertRepository.AddAsync(anomalyAlert, cancellationToken);
+
+                    if (broadcastService is not null)
+                    {
+                        var alertDto = new AlertDto(
+                            anomalyAlert.Id,
+                            anomalyAlert.VehicleId,
+                            vehicle.Name,
+                            anomalyAlert.Severity,
+                            anomalyAlert.Type,
+                            anomalyAlert.Message,
+                            anomalyAlert.CreatedAt,
+                            anomalyAlert.IsAcknowledged
+                        );
+                        await broadcastService.BroadcastAlertAsync(alertDto, cancellationToken);
+                    }
+                }
+            }
+        }
 
         // Redis Caching (Cache-Aside / Read-Through Cache Write): En son konumu Redis'e yaz
         if (cacheService is not null)

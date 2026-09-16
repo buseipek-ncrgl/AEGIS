@@ -126,6 +126,12 @@ export default function Home() {
         }
       });
 
+    // Connection Ack Handler (Browser konsol uyarısını önlemek için)
+    connection.on("ReceiveConnectionAck", (msg: string) => {
+      if (!isMounted) return;
+      console.log("SignalR Connection ACK:", msg);
+    });
+
     // Canlı Telemetri Paketi Düştüğünde
     connection.on("ReceiveTelemetry", (telemetry: TelemetryDto) => {
       if (!isMounted) return;

@@ -18,6 +18,10 @@
 
 ## 📸 Tactical Radar System Visual Overview
 
+| 🌐 Web Command Viewport & GIS Radar Grid | 🚨 Emergency Tactical Alert & Telemetry Hub |
+| :---: | :---: |
+| ![AEGIS Web Command Viewport](docs/screenshots/aegis_web_mockup_1.jpg) | ![AEGIS Emergency Alert Hub](docs/screenshots/aegis_web_mockup_2.jpg) |
+
 | 🖥️ 4K Command Workstation Monitor Mockup | 💻 MacBook Pro C4ISR Field Display |
 | :---: | :---: |
 | ![AEGIS 4K Command Center Monitor](docs/screenshots/aegis_monitor_mockup.jpg) | ![AEGIS MacBook Pro Field Display](docs/screenshots/aegis_macbook_mockup.jpg) |

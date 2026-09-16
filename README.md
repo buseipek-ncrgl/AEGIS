@@ -16,18 +16,6 @@
 
 ---
 
-## 📸 Tactical Radar System Visual Overview
-
-| Tactical Command Center & GIS Flight Trails | Live Radar Grid & Vehicle List |
-| :---: | :---: |
-| ![AEGIS Tactical Command Center](docs/screenshots/media_1789501427788.png) | ![Live Radar Grid](docs/screenshots/media_1789502411671.png) |
-
-| Tactical Alert Banner & AI Anomaly Detection | Kubernetes Cloud-Native Cluster Setup |
-| :---: | :---: |
-| ![Tactical Alerts](docs/screenshots/media_1789501021205.png) | ![Kubernetes Cluster Setup](docs/screenshots/media_1789555203645.png) |
-
----
-
 ## 🏛️ System Architecture & Data Flow
 
 ### 1. High-Level Architecture
@@ -125,14 +113,14 @@ In a live production defense or emergency response deployment (such as a **Bayra
 ---
 
 ### 🔹 Digital Twin & Software Simulation (Yazılım Dijital İkizi)
-In this repository, [`apps/simulator/main.py`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/apps/simulator/main.py) serves as a **Software Digital Twin** of these physical **STM32 / PX4 Edge Hardware Boards**. It mathematically simulates real-world flight dynamics, battery drain, thermal heating, and satellite coordinates, transmitting live telemetry to the AEGIS .NET 9 API exactly as physical IoT hardware would in an operational mission.
+In this repository, [`apps/simulator/main.py`](apps/simulator/main.py) serves as a **Software Digital Twin** of these physical **STM32 / PX4 Edge Hardware Boards**. It mathematically simulates real-world flight dynamics, battery drain, thermal heating, and satellite coordinates, transmitting live telemetry to the AEGIS .NET 9 API exactly as physical IoT hardware would in an operational mission.
 
 ---
 
 ## ✨ Key Platform Capabilities
 
 ### 1. 🤖 Statistical AI Kinematic Anomaly Detector
-Unlike heavy neural networks that introduce millisecond latency, AEGIS incorporates a high-speed **Haversine Earth Kinematic Model** ($d = 2R \cdot \text{atan2}(\sqrt{a}, \sqrt{1-a})$) in C# ([`StatisticalAnomalyDetector.cs`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/services/aegis-api/src/Aegis.Application/Telemetry/Services/StatisticalAnomalyDetector.cs)) executing in under **0.1ms** to detect 3 critical aerial threats:
+Unlike heavy neural networks that introduce millisecond latency, AEGIS incorporates a high-speed **Haversine Earth Kinematic Model** ($d = 2R \cdot \text{atan2}(\sqrt{a}, \sqrt{1-a})$) in C# ([`StatisticalAnomalyDetector.cs`](services/aegis-api/src/Aegis.Application/Telemetry/Services/StatisticalAnomalyDetector.cs)) executing in under **0.1ms** to detect 3 critical aerial threats:
 - **🛰️ GPS Spoofing & Signal Jamming:** Detects impossible spatial jumps ($v > 1200\text{ km/h}$) caused by enemy electronic warfare (EW).
 - **📉 Sudden Altitude Freefall (Stall / Wing Damage):** Triggers immediate drop alarms when vertical fall rate exceeds $\Delta h / \Delta t > 100\text{ m/s}$.
 - **🔥 Thermal Runaway (Battery / Engine Fire Risk):** Flags rapid thermal spikes ($\Delta T / \Delta t > 2.5^\circ\text{C/s}$) before structural battery failure.
@@ -155,7 +143,7 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 
 ### 4. 🎛️ Tactical Command Add-ons
 - **🔊 Web Audio API Tactical Sirens:** Real-time dual-tone synth radar alarms ($880\text{Hz} \rightarrow 440\text{Hz}$) synthesized natively in the browser without external media assets.
-- **🚨 Manual Operator Emergency Broadcast:** Single-click operator panel ([`ManualAlertModal.tsx`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/apps/web/src/components/ManualAlertModal.tsx)) to broadcast custom alerts to all connected screens.
+- **🚨 Manual Operator Emergency Broadcast:** Single-click operator panel ([`ManualAlertModal.tsx`](apps/web/src/components/ManualAlertModal.tsx)) to broadcast custom alerts to all connected screens.
 - **⏯️ Interactive Flight History Replay Player:** Time-slider playback bar with 1x, 2x, 4x speed control that smoothly animates vehicle markers along historical flight points.
 - **📄 After-Action Report (AAR) Export:** 1-click CSV exporter for mission debriefing and telemetry audit trails.
 
@@ -165,7 +153,7 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 - **Dedicated C4ISR Workspaces:** Distinct tab isolation for Command Overview (Dashboard), Fullscreen Map, Asset Console, AI Anomaly Engine, and Mission Debriefing (Reports).
 
 ### 6. ☸️ Cloud-Native Infrastructure & Resilience
-- **Kubernetes (K8s) & Helm v3.0.0:** Production deployment manifests ([`deployments/k8s/`](file:///c:/Users/Dell/Documents/PROJECT/AEGIS/deployments/k8s/)), ClusterIP services, and Horizontal Pod Autoscaler (HPA) scaling pods dynamically based on CPU (>70%) and RAM (>80%).
+- **Kubernetes (K8s) & Helm v3.0.0:** Production deployment manifests ([`deployments/k8s/`](deployments/k8s/)), ClusterIP services, and Horizontal Pod Autoscaler (HPA) scaling pods dynamically based on CPU (>70%) and RAM (>80%).
 - **Polly Resilience Pipelines:** Exponential backoff retries and circuit breakers preventing cascaded failure during Redis/Kafka container outages.
 - **Observability Stack:** OpenTelemetry metric instrumentation scraped by Prometheus (`http://localhost:9090`) and visualized via Grafana (`http://localhost:3001`).
 

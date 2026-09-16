@@ -1,8 +1,10 @@
 using System.Text.Json;
 using Aegis.Application.Abstractions.Services;
+using Aegis.Infrastructure.Resilience;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace Aegis.Infrastructure.Messaging;
 
@@ -10,11 +12,13 @@ public class KafkaProducerService : IKafkaProducerService, IDisposable
 {
     private readonly IProducer<string, string>? _producer;
     private readonly ILogger<KafkaProducerService> _logger;
+    private readonly ResiliencePipeline _resiliencePipeline;
     private readonly bool _isEnabled;
 
     public KafkaProducerService(IConfiguration configuration, ILogger<KafkaProducerService> logger)
     {
         _logger = logger;
+        _resiliencePipeline = ResiliencePolicies.CreateKafkaProducerPipeline(logger);
         var bootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092";
         _isEnabled = string.Equals(configuration["Kafka:IsEnabled"], "true", StringComparison.OrdinalIgnoreCase);
 
@@ -55,12 +59,16 @@ public class KafkaProducerService : IKafkaProducerService, IDisposable
                 Value = jsonPayload
             };
 
-            var result = await _producer.ProduceAsync(topic, message, cancellationToken);
-            _logger.LogDebug("Kafka Event Yayımlandı -> Topic: {Topic}, Partition: {Partition}, Offset: {Offset}", topic, result.Partition.Value, result.Offset.Value);
+            // Polly Resilience Pipeline: Retry + Circuit Breaker ile güvenli fırlatma
+            await _resiliencePipeline.ExecuteAsync(async ct =>
+            {
+                var result = await _producer.ProduceAsync(topic, message, ct);
+                _logger.LogDebug("Kafka Event Yayımlandı -> Topic: {Topic}, Partition: {Partition}, Offset: {Offset}", topic, result.Partition.Value, result.Offset.Value);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Kafka Event yayınlama hatası (Topic: {Topic})", topic);
+            _logger.LogWarning(ex, "Kafka Event yayınlama hatası (Topic: {Topic}). Polly koruması devrede.", topic);
         }
     }
 

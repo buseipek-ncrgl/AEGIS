@@ -1,7 +1,6 @@
-"use client";
-
+import { useState } from "react";
 import { TrackedVehicleState, VehicleType } from "@/types/telemetry";
-import { Plane, Ambulance, Navigation, Battery, Cpu, Activity } from "lucide-react";
+import { Plane, Ambulance, Navigation, Battery, Cpu, Activity, Search, Filter } from "lucide-react";
 
 interface VehicleListProps {
   trackedVehicles: Map<string, TrackedVehicleState>;
@@ -18,7 +17,22 @@ export default function VehicleList({
   onPlayRoute,
   isFullView = false,
 }: VehicleListProps) {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("ALL");
+
   const vehicleList = Array.from(trackedVehicles.values());
+
+  const filteredVehicles = vehicleList.filter((state) => {
+    const matchesSearch =
+      state.vehicle.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      state.vehicle.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType =
+      selectedType === "ALL" ||
+      (selectedType === "DRONE" && state.vehicle.type === VehicleType.Drone) ||
+      (selectedType === "HELICOPTER" && state.vehicle.type === VehicleType.Helicopter) ||
+      (selectedType === "AMBULANCE" && state.vehicle.type === VehicleType.Ambulance);
+    return matchesSearch && matchesType;
+  });
 
   const getVehicleTypeName = (type: VehicleType) => {
     switch (type) {
@@ -44,8 +58,8 @@ export default function VehicleList({
           <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
           <h3 className="text-xs font-black text-cyan-300 tracking-widest uppercase">
             {isFullView
-              ? `TAKTİK FİLO VE ENVANTER KONSOLU (${vehicleList.length} ÜNİTE AKTİF)`
-              : `AKTİF TAKTİK FİLO İZLERİ (${vehicleList.length})`}
+              ? `TAKTİK FİLO VE ENVANTER KONSOLU (${filteredVehicles.length}/${vehicleList.length} ÜNİTE)`
+              : `AKTİF TAKTİK FİLO İZLERİ (${filteredVehicles.length}/${vehicleList.length})`}
           </h3>
         </div>
         <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded">
@@ -53,13 +67,70 @@ export default function VehicleList({
         </span>
       </div>
 
+      {/* Arama & Tip Filtre Çubuğu */}
+      <div className="p-3 bg-slate-950/60 border-b border-cyan-500/20 space-y-2">
+        <div className="relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            placeholder="Araç adı veya İHA/İz ID ara..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-[#050913] border border-cyan-500/30 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+          />
+        </div>
+
+        <div className="flex items-center space-x-1.5 text-[10px] overflow-x-auto pb-1 scrollbar-none">
+          <button
+            onClick={() => setSelectedType("ALL")}
+            className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+              selectedType === "ALL"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
+            }`}
+          >
+            TÜMÜ
+          </button>
+          <button
+            onClick={() => setSelectedType("DRONE")}
+            className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+              selectedType === "DRONE"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
+            }`}
+          >
+            🚁 İHA
+          </button>
+          <button
+            onClick={() => setSelectedType("HELICOPTER")}
+            className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+              selectedType === "HELICOPTER"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
+            }`}
+          >
+            🚁 HELİKOPTER
+          </button>
+          <button
+            onClick={() => setSelectedType("AMBULANCE")}
+            className={`px-2.5 py-1 rounded-lg font-bold transition cursor-pointer ${
+              selectedType === "AMBULANCE"
+                ? "bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-cyan-300"
+            }`}
+          >
+            🚑 AMBULANS
+          </button>
+        </div>
+      </div>
+
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
-        {vehicleList.length === 0 ? (
+        {filteredVehicles.length === 0 ? (
           <div className="text-center py-16 text-slate-500 text-xs font-mono">
-            AKTİF RADAR İZİ BULUNAMADI.<br />Telemetri aktarımı için Python Simülatörünü başlatın.
+            ARAMA KRİTERLERİNE UYGUN İZ BULUNAMADI.<br />Lütfen arama terimini değiştirin.
           </div>
         ) : (
-          vehicleList.map((state) => {
+          filteredVehicles.map((state) => {
             const isSelected = state.vehicle.id === selectedVehicleId;
             const t = state.latestTelemetry;
 

@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { Lock, KeyRound, ShieldCheck, X, AlertCircle } from "lucide-react";
 
+import { getApiBaseUrl } from "@/lib/config";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (token: string, username: string) => void;
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
   const [username, setUsername] = useState<string>("operator");
@@ -25,7 +25,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const res = await fetch(`${getApiBaseUrl()}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

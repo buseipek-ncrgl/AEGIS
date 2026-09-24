@@ -7,11 +7,14 @@ import "leaflet/dist/leaflet.css";
 import { TrackedVehicleState, VehicleType, TelemetryDto } from "@/types/telemetry";
 
 // Custom Leaflet Icons for Drone, Ambulance, Helicopter
-const createCustomIcon = (type: VehicleType, isSelected: boolean) => {
+const createCustomIcon = (type: VehicleType, isSelected: boolean, hasAnomaly: boolean) => {
   let color = "#10b981"; // Emerald
   let symbol = "✈️";
 
-  if (type === VehicleType.Ambulance) {
+  if (hasAnomaly) {
+    color = "#dc2626"; // Crimson Red
+    symbol = "⚠️";
+  } else if (type === VehicleType.Ambulance) {
     color = "#f43f5e"; // Rose
     symbol = "🚑";
   } else if (type === VehicleType.Helicopter) {
@@ -19,26 +22,34 @@ const createCustomIcon = (type: VehicleType, isSelected: boolean) => {
     symbol = "🚁";
   }
 
-  const border = isSelected ? "3px solid #34d399" : "2px solid rgba(255,255,255,0.3)";
-  const glow = isSelected ? "box-shadow: 0 0 15px #34d399;" : "";
+  const border = hasAnomaly
+    ? "3px solid #f87171"
+    : isSelected
+    ? "3px solid #34d399"
+    : "2px solid rgba(255,255,255,0.3)";
+  const glow = hasAnomaly
+    ? "box-shadow: 0 0 25px #ef4444;"
+    : isSelected
+    ? "box-shadow: 0 0 15px #34d399;"
+    : "";
 
   return L.divIcon({
     className: "custom-leaflet-marker",
     html: `<div style="
       background: ${color};
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 18px;
       border: ${border};
       ${glow}
       transition: all 0.3s ease;
     ">${symbol}</div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 };
 
@@ -259,7 +270,8 @@ export default function GisMap({
           const t = isSelected && playbackTelemetry ? playbackTelemetry : state.latestTelemetry;
           if (!t) return null;
 
-          const icon = createCustomIcon(state.vehicle.type, isSelected);
+          const hasAnomaly = !!(t.anomalies && t.anomalies.length > 0);
+          const icon = createCustomIcon(state.vehicle.type, isSelected, hasAnomaly);
 
           return (
             <Marker

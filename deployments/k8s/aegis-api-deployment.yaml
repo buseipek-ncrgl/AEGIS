@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: aegis-api
-          image: aegis-api:v3.0.0
+          image: aegis-api:v3.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000

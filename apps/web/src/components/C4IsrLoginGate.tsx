@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Shield, Lock, KeyRound, Eye, Radio, ShieldCheck, AlertCircle } from "lucide-react";
 
+import { getApiBaseUrl } from "@/lib/config";
+
 interface C4IsrLoginGateProps {
   onLoginSuccess: (token: string, username: string) => void;
   onGuestAccess: () => void;
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function C4IsrLoginGate({ onLoginSuccess, onGuestAccess }: C4IsrLoginGateProps) {
   const [username, setUsername] = useState<string>("operator");
@@ -22,7 +22,7 @@ export default function C4IsrLoginGate({ onLoginSuccess, onGuestAccess }: C4IsrL
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const res = await fetch(`${getApiBaseUrl()}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -148,9 +148,9 @@ export default function C4IsrLoginGate({ onLoginSuccess, onGuestAccess }: C4IsrL
               onClick={onGuestAccess}
               className="bg-[#050914] hover:bg-slate-900 border border-cyan-500/40 text-cyan-400 p-2.5 rounded-xl text-left transition flex items-center space-x-2 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
             >
-              <Eye className="w-4 h-4 shrink-0 text-cyan-400" />
+              <Shield className="w-4 h-4 shrink-0 text-cyan-400" />
               <div className="truncate">
-                <div className="font-bold text-[11px]">👁️ Misafir</div>
+                <div className="font-bold text-[11px]">Misafir</div>
                 <div className="text-[9px] text-slate-400 font-mono">Read-Only Observer</div>
               </div>
             </button>

@@ -96,12 +96,12 @@ export default function Header({
 
         {/* 3. SAĞ: Operatör Kimliği & Taktik Alarm Aksiyonları */}
         <div className="flex items-center space-x-3 w-full md:w-auto justify-end font-mono text-xs">
-          {/* JWT Operatör Kimlik Butonu */}
+          {/* JWT Operatör Kimlik / Misafir Çıkış Butonu */}
           {jwtToken ? (
             <button
               onClick={onLogout}
               className="flex items-center space-x-2 bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 px-3.5 py-1.5 rounded-xl text-emerald-300 transition-all shadow-[0_0_15px_rgba(16,185,129,0.25)] cursor-pointer active:scale-95"
-              title="Oturumu Kapat"
+              title="Oturumu Kapat ve Giriş Portalına Dön"
             >
               <UserCheck className="w-4 h-4 text-emerald-400" />
               <div className="text-left">
@@ -111,11 +111,15 @@ export default function Header({
             </button>
           ) : (
             <button
-              onClick={() => setIsAuthModalOpen(true)}
-              className="flex items-center space-x-2 bg-amber-950/90 hover:bg-amber-900 border border-amber-500/60 px-3.5 py-1.5 rounded-xl text-amber-300 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] animate-pulse cursor-pointer active:scale-95"
+              onClick={onLogout}
+              className="flex items-center space-x-2 bg-amber-950/90 hover:bg-amber-900 border border-amber-500/60 px-3.5 py-1.5 rounded-xl text-amber-300 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer active:scale-95"
+              title="Operatör Giriş Portalına Dön"
             >
               <Lock className="w-4 h-4 text-amber-400" />
-              <span className="font-bold text-[11px]">OPERATÖR GİRİŞİ (JWT)</span>
+              <div className="text-left">
+                <span className="block font-black text-[11px] leading-none text-amber-200">Misafir İzleyici</span>
+                <span className="text-[9px] text-amber-300 font-bold underline">Operatör Ekranına Geç</span>
+              </div>
             </button>
           )}
 

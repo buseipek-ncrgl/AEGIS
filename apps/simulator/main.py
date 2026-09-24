@@ -11,8 +11,10 @@ if sys.platform == "win32":
 
 from vehicle_simulator import SimulatedVehicle
 
+import os
+
 # AEGIS API URL'si
-API_BASE_URL = "http://localhost:5000/api"
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:5000/api")
 
 def register_vehicle(name: str, vehicle_type: int) -> str:
     """

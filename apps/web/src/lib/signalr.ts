@@ -1,10 +1,9 @@
 import * as signalR from "@microsoft/signalr";
-
-const SIGNALR_HUB_URL = process.env.NEXT_PUBLIC_SIGNALR_URL || "http://localhost:5000/hubs/telemetry";
+import { getSignalRHubUrl } from "./config";
 
 export function createSignalRConnection(): signalR.HubConnection {
   return new signalR.HubConnectionBuilder()
-    .withUrl(SIGNALR_HUB_URL, {
+    .withUrl(getSignalRHubUrl(), {
       skipNegotiation: false,
       transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
     })

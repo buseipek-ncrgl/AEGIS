@@ -213,48 +213,60 @@ AEGIS/
 
 ## 🚀 Quick Start Guide
 
-### Prerequisites
+### Option A: 1-Click Full-Stack Docker Deployment (Recommended)
+Launch the entire AEGIS platform (PostgreSQL, Redis, Kafka, Prometheus, Grafana, .NET 9 API, Next.js Command Center, and Python Simulator) in isolated containers with a single command:
+
+```bash
+git clone https://github.com/your-username/aegis.git
+cd aegis
+
+# Build & launch all services simultaneously
+docker compose up --build
+```
+*Access the Web Command Center at `http://localhost:3000` (API at `http://localhost:5000`). Once built, you can start/stop the stack with a single click using the **Play ▶️ / Stop ⏹️** button in Docker Desktop.*
+
+---
+
+### Option B: Multi-Machine / Remote Backend Environment Setup
+If your Frontend and Backend services are hosted on separate physical machines or different IP addresses across your local network:
+1. Create a `.env.local` file inside `apps/web/`:
+   ```env
+   NEXT_PUBLIC_API_URL=http://<BACKEND-IP-OR-DOMAIN>:5000/api
+   NEXT_PUBLIC_SIGNALR_URL=http://<BACKEND-IP-OR-DOMAIN>:5000/hubs/telemetry
+   ```
+   *Note: By default, AEGIS features intelligent dynamic host resolution (`getApiBaseUrl()`), automatically detecting your network IP when accessing via local Wi-Fi.*
+
+---
+
+### Option C: Local Development Mode (Individual Services)
+
+#### Prerequisites
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Java 21 JDK](https://adoptium.net/) & Maven
 - [Node.js 18+ & npm](https://nodejs.org/)
 - [Python 3.10+](https://www.python.org/) (`requests` package installed)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
----
-
-### Step 1: Clone & Start Infrastructure Stack (Docker Compose)
+#### Step 1: Start Infrastructure Stack
 ```bash
-git clone https://github.com/your-username/aegis.git
-cd aegis
-
-# Start PostgreSQL, Redis, Zookeeper, Kafka, Prometheus & Grafana
-docker-compose up -d
+docker compose up -d
 ```
 
----
-
-### Step 2: Start C# .NET 9 API Backend
+#### Step 2: Start C# .NET 9 API Backend
 ```bash
 cd services/aegis-api
 dotnet run --project src/Aegis.Api
 ```
-*API will start listening on `http://localhost:5000` (SignalR Hub at `/hubs/telemetry`).*
 
----
-
-### Step 3: Start Next.js 14 Web Command Center
+#### Step 3: Start Next.js Web Command Center
 ```bash
 cd apps/web
 npm install
 npm run dev
 ```
-*Open your browser and navigate to `http://localhost:3000`.*
 
----
-
-### Step 4: Start Python Telemetry Simulator
+#### Step 4: Start Python Telemetry Simulator
 ```bash
-# From project root directory
 python apps/simulator/main.py
 ```
 *The simulator will register official Turkish defense tactical platforms (**STM-KARGU-2**, **STM-TOGAN-2**, **STM-ALPAGU-1**, **TSK-HELS-35**, **AFAD-AMBULANS-06**) and stream live STANAG 4586 compliant GPS coordinates to the API.*

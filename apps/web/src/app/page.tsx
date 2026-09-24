@@ -12,10 +12,9 @@ import RouteReplayPlayer from "@/components/RouteReplayPlayer";
 import C4IsrLoginGate from "@/components/C4IsrLoginGate";
 import { createSignalRConnection } from "@/lib/signalr";
 import { playTacticalSiren } from "@/lib/audioAlert";
-import { Vehicle, TelemetryDto, TrackedVehicleState } from "@/types/telemetry";
+import { getApiBaseUrl } from "@/lib/config";
+import { Vehicle, TelemetryDto, TrackedVehicleState, VehicleType, VehicleStatus } from "@/types/telemetry";
 import { AlertDto } from "@/types/alert";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -54,6 +53,7 @@ export default function Home() {
     setJwtToken(token);
     setOperatorUser(username);
     setIsGuestView(false);
+    fetchVehicles();
     fetchActiveAlerts(token);
     playTacticalSiren("ack");
   };
@@ -69,7 +69,7 @@ export default function Home() {
   // 1. Mevcut Araçları REST API'den Çek
   const fetchVehicles = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/vehicles`);
+      const res = await fetch(`${getApiBaseUrl()}/vehicles`);
       if (res.ok) {
         const vehicles: Vehicle[] = await res.json();
         setTrackedVehicles((prevMap) => {
@@ -99,7 +99,7 @@ export default function Home() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`${API_BASE_URL}/alerts/active`, { headers });
+      const res = await fetch(`${getApiBaseUrl()}/alerts/active`, { headers });
       if (res.ok) {
         const data: AlertDto[] = await res.json();
         setAlerts(data);
@@ -117,7 +117,7 @@ export default function Home() {
       if (jwtToken) {
         headers["Authorization"] = `Bearer ${jwtToken}`;
       }
-      await fetch(`${API_BASE_URL}/alerts/${id}/acknowledge`, { method: "POST", headers });
+      await fetch(`${getApiBaseUrl()}/alerts/${id}/acknowledge`, { method: "POST", headers });
     } catch (err) {
       console.warn("Alarm onaylanamadı:", err);
     }
@@ -126,6 +126,12 @@ export default function Home() {
   useEffect(() => {
     fetchVehicles();
     fetchActiveAlerts();
+
+    const interval = setInterval(() => {
+      fetchVehicles();
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // 2. SignalR Canlı Yayın Bağlantısını Kur ve Dinle (Bağımlılık Dizisi Boyutu Sabit Kalır: [])
@@ -184,7 +190,19 @@ export default function Home() {
             telemetryHistory: updatedHistory,
           });
         } else {
-          fetchVehicles();
+          const fallbackVehicle: Vehicle = {
+            id: telemetry.vehicleId,
+            name: `TAKTIK-UNITE-${telemetry.vehicleId.slice(0, 6).toUpperCase()}`,
+            type: VehicleType.Drone,
+            status: VehicleStatus.Active,
+            lastSeenAt: telemetry.timestamp,
+          };
+          vehicleName = fallbackVehicle.name;
+          newMap.set(telemetry.vehicleId, {
+            vehicle: fallbackVehicle,
+            latestTelemetry: telemetry,
+            telemetryHistory: [telemetry],
+          });
         }
 
         setTelemetryLogs((prevLogs) => [
@@ -336,13 +354,92 @@ export default function Home() {
 
           {/* TAB 4: Yapay Zeka & Anomali Detay Görünümü (AI) */}
           {activeTab === "ai" && (
-            <div className="space-y-5">
-              <div className="c4isr-glass-panel p-6 rounded-2xl border border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.2)] font-mono">
-                <h3 className="text-lg font-black text-purple-300 mb-2">🤖 HAVERSINE KINEMATIC AI ANOMALY ENGINE</h3>
-                <p className="text-xs text-slate-300">
-                  Gerçek zamanlı yeryüzü eğriliği kinetik modelleri (d = 2R · atan2(√a, √(1-a))) ile GPS Spoofing, Serbest Düşüş ve Termal Kaçış risk analizleri gerçekleştirilmektedir.
-                </p>
+            <div className="space-y-5 font-mono">
+              <div className="c4isr-glass-panel p-6 rounded-2xl border border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-purple-950 p-2.5 rounded-xl border border-purple-500/50 text-purple-400 animate-pulse">
+                      🤖
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-purple-300 tracking-wider">HAVERSINE KINEMATIC AI ANOMALY ENGINE</h3>
+                      <p className="text-xs text-slate-300 font-mono mt-0.5">
+                        Gerçek zamanlı yeryüzü eğriliği kinetik modelleri (d = 2R · atan2(√a, √(1-a))) ile Elektronik Harp (Jammer/Spoofer) Tespiti.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-purple-950 text-purple-300 border border-purple-500/60 text-[10px] px-3 py-1 rounded-xl font-bold tracking-widest uppercase">
+                    MIL-SPEC AI v3.0 ACTIVE
+                  </span>
+                </div>
+
+                {/* Yapay Zeka Metrik Özet Kartları */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-purple-900/40">
+                  <div className="bg-[#050811] p-3 rounded-xl border border-rose-500/30">
+                    <span className="text-[10px] text-rose-400 block font-bold">GPS SPOOFING TESPİTİ</span>
+                    <span className="text-lg font-black text-rose-300">
+                      {telemetryLogs.filter(l => l.telemetry.anomalies && l.telemetry.anomalies.some(a => a.anomalyType === 1)).length} Adet
+                    </span>
+                  </div>
+                  <div className="bg-[#050811] p-3 rounded-xl border border-amber-500/30">
+                    <span className="text-[10px] text-amber-400 block font-bold">SERBEST DÜŞÜŞ İKAZI</span>
+                    <span className="text-lg font-black text-amber-300">
+                      {telemetryLogs.filter(l => l.telemetry.anomalies && l.telemetry.anomalies.some(a => a.anomalyType === 2)).length} Adet
+                    </span>
+                  </div>
+                  <div className="bg-[#050811] p-3 rounded-xl border border-orange-500/30">
+                    <span className="text-[10px] text-orange-400 block font-bold">TERMAL KAÇIŞ RİSKİ</span>
+                    <span className="text-lg font-black text-orange-300">
+                      {telemetryLogs.filter(l => l.telemetry.anomalies && l.telemetry.anomalies.some(a => a.anomalyType === 3)).length} Adet
+                    </span>
+                  </div>
+                  <div className="bg-[#050811] p-3 rounded-xl border border-cyan-500/30">
+                    <span className="text-[10px] text-cyan-400 block font-bold">TOPLAM İŞLENEN PAKET</span>
+                    <span className="text-lg font-black text-cyan-300">
+                      {telemetryLogs.length} Paket
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              {/* Tespiti Yapılan Anomali Listesi Kartları */}
+              {telemetryLogs.filter(l => l.telemetry.anomalies && l.telemetry.anomalies.length > 0).length > 0 && (
+                <div className="c4isr-glass-panel p-5 rounded-2xl border border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)] space-y-3">
+                  <h4 className="text-xs font-black text-rose-400 uppercase tracking-widest flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>SON ALARM VEREN KİNETİK ANOMALİ RAPORLARI</span>
+                  </h4>
+
+                  <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-2">
+                    {telemetryLogs
+                      .filter(l => l.telemetry.anomalies && l.telemetry.anomalies.length > 0)
+                      .slice(0, 10)
+                      .map((log, idx) => (
+                        <div key={idx} className="bg-[#050812] border border-rose-600/40 p-3 rounded-xl flex items-center justify-between text-xs hover:border-rose-400 transition">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-bold text-rose-300 text-sm">🚨 {log.vehicleName}</span>
+                              <span className="text-[10px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-500/40">
+                                {new Date(log.telemetry.timestamp).toLocaleTimeString("tr-TR")}
+                              </span>
+                            </div>
+                            <p className="text-slate-300 text-xs mt-1 font-sans">
+                              {log.telemetry.anomalies![0].description}
+                            </p>
+                          </div>
+
+                          <div className="text-right">
+                            <span className="text-[10px] text-slate-400 block">AI GÜVEN SKORU</span>
+                            <span className="text-emerald-400 font-bold text-xs">
+                              %{(log.telemetry.anomalies![0].confidenceScore * 100).toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
               <TelemetryFeed telemetryLogs={telemetryLogs} />
             </div>
           )}

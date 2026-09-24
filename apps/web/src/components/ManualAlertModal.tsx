@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle, Send, X, ShieldAlert, Radio } from "lucide-react";
 import { TrackedVehicleState } from "@/types/telemetry";
+import { getApiBaseUrl } from "@/lib/config";
 
 interface ManualAlertModalProps {
   isOpen: boolean;
@@ -11,8 +12,6 @@ interface ManualAlertModalProps {
   trackedVehicles: Map<string, TrackedVehicleState>;
   onAlertSent?: () => void;
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function ManualAlertModal({
   isOpen,
@@ -74,7 +73,7 @@ export default function ManualAlertModal({
         message: finalMessage,
       };
 
-      const res = await fetch(`${API_BASE_URL}/alerts/manual`, {
+      const res = await fetch(`${getApiBaseUrl()}/alerts/manual`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

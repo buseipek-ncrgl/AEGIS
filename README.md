@@ -72,7 +72,7 @@ sequenceDiagram
 
 ---
 
-## 💡 Real-World IoT & Edge Hardware Deployment (Gerçek Dünyada Nasıl Çalışır?)
+## 💡 Real-World IoT & Edge Hardware Deployment 
 
 In a live production defense or emergency response deployment (such as a **Bayraktar TB2**, **STM KARGU-2 UAV**, or **AFAD Emergency Ambulance**), physical edge hardware is mounted inside the vehicle:
 
@@ -100,7 +100,7 @@ In a live production defense or emergency response deployment (such as a **Bayra
                                             └──────────────────────────────────────┘
 ```
 
-### 🔹 Physical Hardware Layer (Fiziksel Donanım Katmanı)
+### 🔹 Physical Hardware Layer 
 1. **🧠 Onboard IoT Flight Controller / Edge Computer:**
    - Powered by an **STM32F4/F7 Microcontroller**, **PX4 Autopilot Board**, or **Raspberry Pi Compute Module 4 (CM4)** running lightweight C++/Python firmware.
 2. **🛰️ High-Precision GNSS Receiver:**
@@ -112,7 +112,7 @@ In a live production defense or emergency response deployment (such as a **Bayra
 
 ---
 
-### 🔹 Digital Twin & Software Simulation (Yazılım Dijital İkizi)
+### 🔹 Digital Twin & Software Simulation
 In this repository, [`apps/simulator/main.py`](apps/simulator/main.py) serves as a **Software Digital Twin** of these physical **STM32 / PX4 Edge Hardware Boards**. It mathematically simulates real-world flight dynamics, battery drain, thermal heating, and satellite coordinates, transmitting live telemetry to the AEGIS .NET 9 API exactly as physical IoT hardware would in an operational mission.
 
 ---
@@ -332,9 +332,3 @@ dotnet test Aegis.sln
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-<p center="align">
-  <strong>AEGIS Tactical Command Engineering Team</strong> • Built with ❤️ for Cloud-Native Defense Tech
-</p>

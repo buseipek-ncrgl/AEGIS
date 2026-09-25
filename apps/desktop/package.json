@@ -1,0 +1,23 @@
+{
+  "name": "aegis-desktop",
+  "version": "3.0.0",
+  "description": "AEGIS C4ISR Tactical Command Center Native Desktop Application (MIL-SPEC Electron Window)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:exe": "electron-builder --win nsis"
+  },
+  "keywords": [
+    "c4isr",
+    "tactical-command",
+    "electron",
+    "defense",
+    "uav-telemetry"
+  ],
+  "author": "AEGIS Defense Systems",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^29.1.0"
+  }
+}

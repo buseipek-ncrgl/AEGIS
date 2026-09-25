@@ -166,6 +166,7 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 | **Backend Core** | C# .NET 9.0 (ASP.NET Core) | Clean Architecture solution (`Domain`, `Application`, `Infrastructure`, `Api`) |
 | **Analytics Engine** | Java 21 / Spring Boot 3.x | Kafka Listener Microservice (`services/aegis-analytics`) |
 | **Frontend Web** | Next.js 14 / TypeScript / TailwindCSS | Tactical Control Center (`apps/web`) |
+| **Desktop Edition** | Electron.js / Node IPC Bridge | Standalone Windows (`.exe`), macOS & Linux Desktop Application (`apps/desktop`) |
 | **Real-Time Streaming** | ASP.NET Core SignalR WebSockets | Bi-directional telemetry and alert broadcasting |
 | **Binary RPC** | gRPC & Protobuf (`telemetry.proto`) | High-speed binary telemetry service |
 | **Event Streaming** | Apache Kafka 7.5.0 & Zookeeper | Event-driven telemetry event bus |
@@ -182,6 +183,10 @@ Unlike heavy neural networks that introduce millisecond latency, AEGIS incorpora
 ```
 AEGIS/
 ├── 📁 apps/
+│   ├── 📁 desktop/                # Native Desktop Application (Electron.js / Windows .exe)
+│   │   ├── main.js                # Electron main process & IPC window manager
+│   │   ├── preload.js             # Secure system bridge
+│   │   └── package.json           # Native build & installer scripts
 │   ├── 📁 simulator/              # Python Real-Time Telemetry & Digital Twin Simulator
 │   │   ├── main.py                # Flight telemetry loop & STM vehicle registration
 │   │   └── vehicle_simulator.py   # GPS, altitude, battery & thermal kinematic model

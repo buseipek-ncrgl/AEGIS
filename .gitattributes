@@ -1,15 +1,6 @@
-# ==============================================================================
-# AEGIS C4ISR Platform - GitHub Linguist Configuration
-# Ensures accurate language distribution reflecting the core backend architecture
-# ==============================================================================
+* text=auto eol=lf
 
-# Exclude heavy Tailwind/JSX UI template components & lockfiles from skewing stats
-apps/web/src/components/** linguist-vendored
-apps/web/package-lock.json linguist-generated
-apps/desktop/** linguist-vendored
-
-# Explicitly mark core engineering layers as detectable source code
-services/aegis-api/**/*.cs linguist-detectable=true
-services/aegis-analytics/**/*.java linguist-detectable=true
-apps/simulator/**/*.py linguist-detectable=true
-
+apps/web/src/components/* linguist-vendored=true
+apps/web/src/components/*.tsx linguist-vendored=true
+apps/web/package-lock.json linguist-generated=true
+apps/desktop/* linguist-vendored=true

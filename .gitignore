@@ -4,6 +4,8 @@
 out/
 build/
 dist/
+target/
+*.class
 
 # IDE & Editor files
 .vs/

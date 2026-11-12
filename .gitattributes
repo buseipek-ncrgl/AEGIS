@@ -12,3 +12,4 @@ apps/desktop/** linguist-vendored
 services/aegis-api/**/*.cs linguist-detectable=true
 services/aegis-analytics/**/*.java linguist-detectable=true
 apps/simulator/**/*.py linguist-detectable=true
+
